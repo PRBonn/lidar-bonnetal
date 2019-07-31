@@ -1,0 +1,12 @@
+# first apt install python3-tk
+numpy==1.14.0
+torchvision==0.2.2.post3
+matplotlib==2.2.3
+tensorflow==1.13.1
+scipy==0.19.1
+torch==1.1.0
+vispy==0.5.3
+opencv_python==4.1.0.25
+opencv_contrib_python==4.1.0.25
+Pillow==6.1.0
+PyYAML==5.1.1

@@ -1,0 +1,11 @@
+*.pyc
+*.pyo
+*.o
+*.so
+*.a
+**build
+.vscode
+.catkin_tools/
+devel/
+logs/
+external.hpp
