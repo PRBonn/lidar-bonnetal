@@ -9,7 +9,7 @@ _Examples of segmentation results from [SemanticKITTI](http://semantic-kitti.org
 ## Configuration files
 
 Architecture configuration files are located at [config/arch](config/arch/)
-Dataset configuration files are located at [config/arch](config/labels/)
+Dataset configuration files are located at [config/labels](config/labels/)
 
 ## Apps
 
