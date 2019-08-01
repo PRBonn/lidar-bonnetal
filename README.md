@@ -4,7 +4,7 @@ Semantic Segmentation of point clouds using range images.
 
 Developed by [Andres Milioto](http://www.ipb.uni-bonn.de/people/andres-milioto/), [Jens Behley](http://www.ipb.uni-bonn.de/people/jens-behley/), [Ignacio Vizzo](http://www.ipb.uni-bonn.de/people/ignacio-vizzo/), and [Cyrill Stachniss](http://www.ipb.uni-bonn.de/people/cyrill-stachniss/)
 
-_Examples of segmentation results from [Semantic-KITTI](http://semantic-kitti.org) dataset:_
+_Examples of segmentation results from [SemanticKITTI](http://semantic-kitti.org) dataset:_
 ![ptcl](pics/semantic-ptcl.gif)
 ![ptcl](pics/semantic-proj.gif)
 
@@ -14,7 +14,7 @@ This code provides code to train and deploy Semantic Segmentation of LiDAR scans
 
 ## Pre-trained Models
 
-### [Semantic-KITTI](http://semantic-kitti.org)
+### [SemanticKITTI](http://semantic-kitti.org)
 
 - [squeezeseg](http://www.ipb.uni-bonn.de/html/projects/bonnetal/lidar/semantic/models/squeezeseg.tar.gz)
 - [squeezeseg + crf](http://www.ipb.uni-bonn.de/html/projects/bonnetal/lidar/semantic/models/squeezeseg-crf.tar.gz)
@@ -29,7 +29,7 @@ To enable kNN post-processing, just change the boolean value to `True` in the `a
   
 ## Predictions from Models
 
-### [Semantic-KITTI](http://semantic-kitti.org)
+### [SemanticKITTI](http://semantic-kitti.org)
 
 These are the predictions for the train, validation, and test sets. The performance can be evaluated for the training and validation set, but for test set evaluation a submission to the benchmark needs to be made (labels are not public).
 

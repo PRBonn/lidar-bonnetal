@@ -2,9 +2,9 @@
 
 This part of the framework deals with the training of semantic segmentation networks for point cloud data using range images. This code allows to reproduce the experiments from the [RangeNet++](http://www.ipb.uni-bonn.de/wp-content/papercite-data/pdf/milioto2019iros.pdf) paper
 
-_Examples of segmentation results from [Semantic-KITTI](http://semantic-kitti.org) dataset:_
-![ptcl](pics/semantic-ptcl.gif)
-![ptcl](pics/semantic-proj.gif)
+_Examples of segmentation results from [SemanticKITTI](http://semantic-kitti.org) dataset:_
+![ptcl](../../../pics/semantic-ptcl.gif)
+![ptcl](../../../pics/semantic-proj.gif)
 
 ## Configuration files
 
@@ -76,7 +76,7 @@ $ ./evaluate_biou.py -d /path/to/dataset -p /path/to/predictions/ --split valid 
 
 ## Pre-trained Models
 
-### [Semantic-KITTI](http://semantic-kitti.org)
+### [SemanticKITTI](http://semantic-kitti.org)
 
 - [squeezeseg](http://www.ipb.uni-bonn.de/html/projects/bonnetal/lidar/semantic/models/squeezeseg.tar.gz)
 - [squeezeseg + crf](http://www.ipb.uni-bonn.de/html/projects/bonnetal/lidar/semantic/models/squeezeseg-crf.tar.gz)
@@ -91,7 +91,7 @@ To enable kNN post-processing, just change the boolean value to `True` in the `a
   
 ## Predictions from Models
 
-### [Semantic-KITTI](http://semantic-kitti.org)
+### [SemanticKITTI](http://semantic-kitti.org)
 
 These are the predictions for the train, validation, and test sets. The performance can be evaluated for the training and validation set, but for test set evaluation a submission to the benchmark needs to be made (labels are not public).
 
