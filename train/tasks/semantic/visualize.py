@@ -83,7 +83,7 @@ if __name__ == '__main__':
   # open config file
   try:
     print("Opening config file %s" % FLAGS.config)
-    CFG = yaml.load(open(FLAGS.config, 'r'))
+    CFG = yaml.safe_load(open(FLAGS.config, 'r'))
   except Exception as e:
     print(e)
     print("Error opening yaml file.")

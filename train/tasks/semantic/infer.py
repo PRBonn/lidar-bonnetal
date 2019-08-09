@@ -51,7 +51,7 @@ if __name__ == '__main__':
   # open arch config file
   try:
     print("Opening arch config file from %s" % FLAGS.model)
-    ARCH = yaml.load(open(FLAGS.model + "/arch_cfg.yaml", 'r'))
+    ARCH = yaml.safe_load(open(FLAGS.model + "/arch_cfg.yaml", 'r'))
   except Exception as e:
     print(e)
     print("Error opening arch yaml file.")
@@ -60,7 +60,7 @@ if __name__ == '__main__':
   # open data config file
   try:
     print("Opening data config file from %s" % FLAGS.model)
-    DATA = yaml.load(open(FLAGS.model + "/data_cfg.yaml", 'r'))
+    DATA = yaml.safe_load(open(FLAGS.model + "/data_cfg.yaml", 'r'))
   except Exception as e:
     print(e)
     print("Error opening data yaml file.")
