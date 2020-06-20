@@ -5,6 +5,7 @@ cycler==0.10.0
 gast==0.3.3
 grpcio==1.29.0
 h5py==2.10.0
+imageio==2.8.0
 importlib-metadata==1.6.1
 Keras-Applications==1.0.8
 Keras-Preprocessing==1.1.2
