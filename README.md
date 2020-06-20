@@ -1,3 +1,6 @@
+# modified-lidar-bonnetal
+Modified repository based on lidar-bonnetal repository.
+
 # LiDAR-Bonnetal
 
 Semantic Segmentation of point clouds using range images.

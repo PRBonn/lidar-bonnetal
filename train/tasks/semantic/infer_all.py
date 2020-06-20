@@ -35,14 +35,6 @@ if __name__ == '__main__':
       default=None,
       help='Directory to get the trained model.'
   )
-  parser.add_argument(
-      '--quantize', '-q',
-      type=bool,
-      required=False,
-      default=False,
-      help='quantize network and calibrate',
-  )
-
   FLAGS, unparsed = parser.parse_known_args()
 
   # print summary of what we will do
@@ -51,7 +43,6 @@ if __name__ == '__main__':
   print("dataset", FLAGS.dataset)
   print("log", FLAGS.log)
   print("model", FLAGS.model)
-  print("quantize", FLAGS.quantize)
   print("----------\n")
   print("Commit hash (training version): ", str(
       subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()))
@@ -86,23 +77,16 @@ if __name__ == '__main__':
       print("train", seq)
       os.makedirs(os.path.join(FLAGS.log, "sequences", seq))
       os.makedirs(os.path.join(FLAGS.log, "sequences", seq, "predictions"))
-    # for seq in DATA["split"]["valid"]:
-    #   seq = '{0:02d}'.format(int(seq))
-    #   print("valid", seq)
-    #   os.makedirs(os.path.join(FLAGS.log, "sequences", seq))
-    #   os.makedirs(os.path.join(FLAGS.log, "sequences", seq, "predictions"))
+    for seq in DATA["split"]["valid"]:
+      seq = '{0:02d}'.format(int(seq))
+      print("valid", seq)
+      os.makedirs(os.path.join(FLAGS.log, "sequences", seq))
+      os.makedirs(os.path.join(FLAGS.log, "sequences", seq, "predictions"))
     for seq in DATA["split"]["test"]:
       seq = '{0:02d}'.format(int(seq))
       print("test", seq)
       os.makedirs(os.path.join(FLAGS.log, "sequences", seq))
       os.makedirs(os.path.join(FLAGS.log, "sequences", seq, "predictions"))
-    print(FLAGS.quantize)
-    if FLAGS.quantize:
-      for seq in DATA["split"]["calibration"]:
-        seq = '{0:02d}'.format(int(seq))
-        print("calibration", seq)
-        os.makedirs(os.path.join(FLAGS.log, "sequences", seq))
-        os.makedirs(os.path.join(FLAGS.log, "sequences", seq, "predictions"))
   except Exception as e:
     print(e)
     print("Error creating log directory. Check permissions!")
@@ -121,7 +105,5 @@ if __name__ == '__main__':
     quit()
 
   # create user and infer dataset
-  user = User(ARCH, DATA, FLAGS.dataset, FLAGS.log, FLAGS.model, FLAGS.quantize)
-  if FLAGS.quantize:
-    user.infer_calibrate()
-  user.infer_test()
+  user = User(ARCH, DATA, FLAGS.dataset, FLAGS.log, FLAGS.model)
+  user.infer()

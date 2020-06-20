@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
-# This file is covered by the LICENSE file in the root of this project.
 import numpy as np
 from PIL import Image
-from torchvision import transforms
 import math
+import argparse
 import yaml
-import pdb
-import imageio
-from pathlib import Path
 import os
+from pykitti import odometry
+import re
+import cv2
+import torch
+from tqdm import tqdm
 
 MIN_W_ANGLE = np.deg2rad(-40)
 MAX_W_ANGLE = np.deg2rad(40)
+MAX_POINTS = 150000
 
 class LaserScan:
   """Class that contains LaserScan with x,y,z,r"""
   EXTENSIONS_SCAN = ['.bin']
 
-  def __init__(self, project=False, H=64, W=1024, fov_up=3.0, fov_down=-25.0, calib_params=None, image_width=1241, image_height=376, resize_rgb_image_height=None, resize_rgb_image_width=None):
+  def __init__(self, project=False, H=64, W=1024, fov_up=3.0, fov_down=-25.0, calib_params=None, image_width=1241, image_height=376):
     self.project = project
     self.proj_H = H
     self.proj_W = W
@@ -27,13 +29,6 @@ class LaserScan:
     self.reset()
     self.image_width = image_width
     self.image_height = image_height
-    self.image_transforms = None
-    
-    if resize_rgb_image_height and resize_rgb_image_width:
-      self.image_transforms = transforms.Compose([
-        transforms.Resize((int(resize_rgb_image_height), int(resize_rgb_image_width))),
-        transforms.ToTensor(),
-      ])
 
   def reset(self):
     """ Reset scan members. """
@@ -53,7 +48,7 @@ class LaserScan:
 
     self.proj_rgb = np.full((self.proj_H, self.proj_W, 3), -1,
                             dtype=np.float32) # CHANGED FROM float64
-    self.proj_fusion_labels = np.full((self.proj_H, self.proj_W, 2), -1, dtype=np.float32)
+
     # projected remission - [H,W] intensity (-1 is no data)
     self.proj_remission = np.full((self.proj_H, self.proj_W), -1,
                                   dtype=np.float32)
@@ -78,15 +73,13 @@ class LaserScan:
   def __len__(self):
     return self.size()
 
-  def open_scan(self, filename, imagename, l1_file=None, l2_file=None):
+  def open_scan(self, filename, imagename):
     """ Open raw scan and fill in attributes
     """
     # reset just in case there was an open structure
     self.reset()
     self.filename = filename
     self.imagename = imagename
-    self.label1_file = l1_file
-    self.label2_file = l2_file
 
     # check filename is string
     if not isinstance(filename, str):
@@ -105,18 +98,9 @@ class LaserScan:
     points = scan[:, 0:3]    # get xyz
     remissions = scan[:, 3]  # get remission
     image = Image.open(imagename)
-    # Opening the two label files
-    label1 = None
-    label2 = None
-    if l1_file is not None:
-      #label1 = imageio.imread(l1_file)
-      label1 = np.load(l1_file)
-    if l2_file is not None:
-      label2 = np.load(l2_file)
-      
-    self.set_points(points, remissions, image, label1, label2)
+    self.set_points(points, remissions, image)
 
-  def set_points(self, points, remissions=None, image=None, l1=None, l2=None):
+  def set_points(self, points, remissions=None, image=None):
     """ Set scan attributes (instead of opening from file)
     """
     # reset just in case there was an open structure
@@ -139,10 +123,6 @@ class LaserScan:
 
     if image:
       self.image = image
-    if l1 is not None:
-      self.l1 = l1
-    if l2 is not None:
-      self.l2 = l2
 
     # if projection is wanted, then do it and fill in the structure
     if self.project:
@@ -189,71 +169,6 @@ class LaserScan:
 
     return result
 
-  def get_l1l2(self, image_coordinates: np.array, image_labels: np.array, lidar_labels: np.array) -> np.array:
-    """
-    function gets l1l2 value from label files
-
-    Args:  
-      images coordinates to get label values of
-    Returns
-      np array with l1l2 value for every point
-    """
-    DATA = yaml.safe_load(open('./config/labels/semantic-kitti-remapped.yaml', 'r'))
-    class_remap = DATA["learning_map"]
-    maxkey = 0
-    for key, data in class_remap.items():
-        if key > maxkey:
-            maxkey = key
-
-    # +100 hack making lut bigger just in case there are unknown labels
-    remap_lut = np.zeros((maxkey + 100), dtype=np.int32)
-    for key, data in class_remap.items():
-        try:
-            remap_lut[key] = data
-        except IndexError:
-            print("Wrong key ", key)
-
-    class_remap_2 = DATA["learning_map_2"]
-    maxkey_2 = 0
-    for key, data in class_remap_2.items():
-        if key > maxkey_2:
-            maxkey_2 = key
-
-    # +100 hack making lut bigger just in case there are unknown labels
-    remap_lut_2 = np.zeros((maxkey_2 + 100), dtype=np.int32)
-    for key, data in class_remap_2.items():
-        try:
-            remap_lut_2[key] = data
-        except IndexError:
-            print("Wrong key ", key)
-
-    
-    result = np.zeros((image_coordinates.shape[0], 2))
-    image_labels = remap_lut_2[image_labels]
-    lidar_labels = remap_lut[lidar_labels]
-    image_labels = image_labels / 15
-    lidar_labels = lidar_labels / 15
-    #image_labels = image_labels[:,:-1]
-    #print(image_coordinates.shape[0])
-    #print(image_labels.shape)
-    for idx in range(image_coordinates.shape[0]):
-      x, y = np.floor(image_coordinates[idx, :]).astype(np.int64)
-      if x > self.image_width:
-        x = self.image_width
-      if y > self.image_height:
-        y = self.image_height
-      # Add Image Model Label
-      result[idx, 0] = image_labels[y][x]
-      # Add Lidar Model Label
-      result[idx, 1] = lidar_labels[idx]
-      
-    return result
-
-  def get_transformed_image(self):
-    if self.image_transforms:
-      return self.image_transforms(self.image)
-
-
   def do_range_projection(self):
     """ Project a pointcloud into a spherical projection image.projection.
       Function takes no arguments because it can be also called externally
@@ -283,15 +198,14 @@ class LaserScan:
 
     self.points = self.points[self.image_filter_condition,:]
     self.remissions = self.remissions[self.image_filter_condition]
-    
+
     # get rgb values
     rgb = self.get_rgb(transformed_velo_to_image.T[self.image_filter_condition, :], self.image)
-    l1l2 = None
-    if hasattr(self, 'l1') and hasattr(self, 'l2'):
-      l1l2 = self.get_l1l2(transformed_velo_to_image.T[self.image_filter_condition, :], self.l1, self.l2)
+    self.rgb = rgb
 
     # get depth of all points
     depth = np.linalg.norm(self.points, 2, axis=1)
+    self.depth = depth
 
     # get scan components
     scan_x = self.points[:, 0]
@@ -333,8 +247,6 @@ class LaserScan:
     points = self.points[order]
     remission = self.remissions[order]
     rgb = rgb[order]
-    if l1l2 is not None:
-      l1l2 = l1l2[order]
 
     proj_y = proj_y[order]
     proj_x = proj_x[order]
@@ -346,129 +258,151 @@ class LaserScan:
     self.proj_idx[proj_y, proj_x] = indices
     self.proj_mask = (self.proj_idx > 0).astype(np.int32) # CHANGED FROM float32.
     self.proj_rgb[proj_y, proj_x] = rgb
-    self.proj_fusion_labels[proj_y, proj_x] = l1l2
+
+EXTENSIONS_SCAN = ['.bin']
+EXTENSIONS_IMAGE = ['.png']
 
 
-class SemLaserScan(LaserScan):
-  """Class that contains LaserScan with x,y,z,r,sem_label,sem_color_label,inst_label,inst_color_label"""
-  EXTENSIONS_LABEL = ['.label','.npy']
+def is_scan(filename):
+  return any(filename.endswith(ext) for ext in EXTENSIONS_SCAN)
 
-  def __init__(self,  sem_color_dict=None, project=False, H=64, W=1024, fov_up=3.0, fov_down=-25.0, max_classes=300, calib_params=None, image_width=1241, image_height=376, resize_rgb_image_height=None, resize_rgb_image_width=None):
-    super(SemLaserScan, self).__init__(project, H, W, fov_up, fov_down, calib_params, image_width, image_height, resize_rgb_image_height, resize_rgb_image_width)
-    self.reset()
+def is_image(filename):
+  return any(filename.endswith(ext) for ext in EXTENSIONS_IMAGE)
 
-    # make semantic colors
-    if sem_color_dict:
-      # if I have a dict, make it
-      max_sem_key = 0
-      for key, data in sem_color_dict.items():
-        if key + 1 > max_sem_key:
-          max_sem_key = key + 1
-      self.sem_color_lut = np.zeros((max_sem_key + 100, 3), dtype=np.float32)
-      for key, value in sem_color_dict.items():
-        self.sem_color_lut[key] = np.array(value, np.float32) / 255.0
-    else:
-      # otherwise make random
-      max_sem_key = max_classes
-      self.sem_color_lut = np.random.uniform(low=0.0,
-                                             high=1.0,
-                                             size=(max_sem_key, 3))
-      # force zero to a gray-ish color
-      self.sem_color_lut[0] = np.full((3), 0.1)
+if __name__== "__main__":
+    parser = argparse.ArgumentParser("./normalization.py")
+    parser.add_argument(
+        '--dataset', '-d',
+        type=str,
+        required=True,
+        help='Dataset to train with. No Default',
+    )
+    parser.add_argument(
+        '--data_cfg', '-dc',
+        type=str,
+        required=False,
+        default='../../config/labels/semantic-kitti.yaml',
+        help='Classification yaml cfg file. See /config/labels for sample. No default!',
+    )
+    parser.add_argument(
+        '--arch_cfg', '-ac',
+        type=str,
+        required=True,
+        help='Architecture yaml cfg file. See /config/arch for sample. No default!',
+    )
+    FLAGS, unparsed = parser.parse_known_args()
 
-    # make instance colors
-    max_inst_id = 100000
-    self.inst_color_lut = np.random.uniform(low=0.0,
-                                            high=1.0,
-                                            size=(max_inst_id, 3))
-    # force zero to a gray-ish color
-    self.inst_color_lut[0] = np.full((3), 0.1)
+    # open data config file
+    try:
+        print("Opening data config file %s" % FLAGS.data_cfg)
+        DATA = yaml.safe_load(open(FLAGS.data_cfg, 'r'))
+    except Exception as e:
+        print(e)
+        print("Error opening data yaml file.")
+        quit()
 
-  def reset(self):
-    """ Reset scan members. """
-    super(SemLaserScan, self).reset()
+    # open arch config file
+    try:
+        print("Opening arch config file %s" % FLAGS.arch_cfg)
+        ARCH = yaml.safe_load(open(FLAGS.arch_cfg, 'r'))
+    except Exception as e:
+        print(e)
+        print("Error opening arch yaml file.")
+        quit()
 
-    # semantic labels
-    self.sem_label = np.zeros((0, 1), dtype=np.int32)          # [m, 1]: label
-    self.sem_label_color = np.zeros((0, 3), dtype=np.float32)  # [m ,3]: color
+    root = os.path.join(FLAGS.dataset, "sequences")
+    train_sequences=DATA["split"]["train"]
+    valid_sequences=DATA["split"]["valid"]
+    sequences = train_sequences
+    sequences.extend(valid_sequences)
 
-    # instance labels
-    self.inst_label = np.zeros((0, 1), dtype=np.int32)          # [m, 1]: label
-    self.inst_label_color = np.zeros((0, 3), dtype=np.float32)  # [m ,3]: color
+    sensor = ARCH["dataset"]["sensor"]
+    sensor_img_H = sensor["img_prop"]["height"]
+    sensor_img_W = sensor["img_prop"]["width"]
+    sensor_fov_up = sensor["fov_up"]
+    sensor_fov_down = sensor["fov_down"]
+    sequence_regex = re.compile('sequences\/(\d+)\/')
 
-    # projection color with semantic labels
-    self.proj_sem_label = np.zeros((self.proj_H, self.proj_W),
-                                   dtype=np.int32)              # [H,W]  label
-    self.proj_sem_color = np.zeros((self.proj_H, self.proj_W, 3),
-                                   dtype=np.float)              # [H,W,3] color
+    total_scan_files = []
+    total_image_files = []
 
-    # projection color with instance labels
-    self.proj_inst_label = np.zeros((self.proj_H, self.proj_W),
-                                    dtype=np.int32)              # [H,W]  label
-    self.proj_inst_color = np.zeros((self.proj_H, self.proj_W, 3),
-                                    dtype=np.float)              # [H,W,3] color
+    all_pgm = []
 
-  def open_label(self, filename, filter=True):
-    """ Open raw scan and fill in attributes
-    """
-    # check filename is string
-    if not isinstance(filename, str):
-      raise TypeError("Filename should be string type, "
-                      "but was {type}".format(type=str(type(filename))))
+    # fill in with names, checking that all sequences are complete
+    for seq in sequences:
 
-    # check extension is a laserscan
-    if not any(filename.endswith(ext) for ext in self.EXTENSIONS_LABEL):
-      raise RuntimeError("Filename extension is not valid label file.")
+        # placeholder for filenames
+        scan_files = []
+        image_files = []
 
-    # if all goes well, open label
-    label = np.fromfile(filename, dtype=np.int32)
-    label = label.reshape((-1))
+        # to string
+        seq = '{0:02d}'.format(int(seq))
 
-    if(filter):
-      label = label[self.image_filter_condition]
+        print("parsing seq {}".format(seq))
 
-    # set it
-    self.set_label(label)
+        odometry_manager = odometry(root.replace('/sequences', ''), seq)
 
-  def set_label(self, label):
-    """ Set points for label not from file but from np
-    """
-    # check label makes sense
-    if not isinstance(label, np.ndarray):
-      raise TypeError("Label should be numpy array")
+        # get paths for each
+        scan_path = os.path.join(root, seq, "velodyne")
+        image_path = os.path.join(root, seq, "image_2")
 
-    # only fill in attribute if the right size
-    if label.shape[0] == self.points.shape[0]:
-      self.sem_label = label & 0xFFFF  # semantic label in lower half
-      self.inst_label = label >> 16    # instance id in upper half
-    else:
-      print("Points shape: ", self.points.shape)
-      print("Label shape: ", label.shape)
-      raise ValueError("Scan and Label don't contain same number of points")
+        # get files
+        scan_files = [os.path.join(dp, f) for dp, dn, fn in os.walk(
+            os.path.expanduser(scan_path)) for f in fn if is_scan(f)]
+        image_files = [os.path.join(dp, f) for dp, dn, fn in os.walk(
+            os.path.expanduser(image_path)) for f in fn if is_image(f)]
 
-    # sanity check
-    assert((self.sem_label + (self.inst_label << 16) == label).all())
+        assert(len(scan_files) == len(image_files))
 
-    if self.project:
-      self.do_label_projection()
+        # extend list
+        total_scan_files.extend(scan_files)
+        total_image_files.extend(image_files)
 
-  def colorize(self):
-    """ Colorize pointcloud with the color of each semantic label
-    """
-    self.sem_label_color = self.sem_color_lut[self.sem_label]
-    self.sem_label_color = self.sem_label_color.reshape((-1, 3))
+        # sort for correspondance
+        scan_files.sort()
+        image_files.sort()
 
-    self.inst_label_color = self.inst_color_lut[self.inst_label]
-    self.inst_label_color = self.inst_label_color.reshape((-1, 3))
+        for scan_file, image_file in tqdm(list(zip(scan_files, image_files)), "processing seq {}".format(seq)):
+            image_size = Image.open(image_file).size
+            scan = LaserScan(project=True,
+                    H=sensor_img_H,
+                    W=sensor_img_W,
+                    fov_up=sensor_fov_up,
+                    fov_down=sensor_fov_down,
+                    calib_params=odometry_manager.calib,
+                    image_height=image_size[1],
+                    image_width=image_size[0])
+            
+            scan.open_scan(scan_file, image_file)
+            #cv2.imwrite("pgm.png", scan.proj_rgb.astype(np.uint8))
+            
+            # make a tensor of the uncompressed data (with the max num points)
+            unproj_n_points = scan.points.shape[0]
+    
+            # get points and labels
+            proj_range = torch.from_numpy(scan.proj_range).clone()
+            proj_xyz = torch.from_numpy(scan.proj_xyz).clone()
+            proj_rgb = torch.from_numpy(scan.proj_rgb).clone()
+            proj_remission = torch.from_numpy(scan.proj_remission).clone()
+            proj_mask = torch.from_numpy(scan.proj_mask)
+           
+            proj_x = torch.full([MAX_POINTS], -1, dtype=torch.long)
+            proj_x[:unproj_n_points] = torch.from_numpy(scan.proj_x)
+            proj_y = torch.full([MAX_POINTS], -1, dtype=torch.long)
+            proj_y[:unproj_n_points] = torch.from_numpy(scan.proj_y)
+            proj = torch.cat([proj_range.unsqueeze(0).clone(),
+                      proj_xyz.clone().permute(2, 0, 1),
+                      proj_remission.unsqueeze(0).clone()])
+            proj = torch.cat((proj, proj_rgb.clone().permute(2, 0, 1)), 0)
+            proj = proj * proj_mask.float()
 
-  def do_label_projection(self):
-    # only map colors to labels that exist
-    mask = self.proj_idx >= 0
+            all_pgm.append(proj)
 
-    # semantics
-    self.proj_sem_label[mask] = self.sem_label[self.proj_idx[mask]]
-    self.proj_sem_color[mask] = self.sem_color_lut[self.sem_label[self.proj_idx[mask]]]
+    stacked_pgms = torch.stack(all_pgm)
+    print("Stacked Size: ", stacked_pgms.size())
 
-    # instances
-    self.proj_inst_label[mask] = self.inst_label[self.proj_idx[mask]]
-    self.proj_inst_color[mask] = self.inst_color_lut[self.inst_label[self.proj_idx[mask]]]
+    means = torch.mean(stacked_pgms, dim=[0,2,3])
+    stds = torch.std(stacked_pgms, dim=[0,2,3])
+
+    print("Means: ", means)
+    print("Stds: ", stds)

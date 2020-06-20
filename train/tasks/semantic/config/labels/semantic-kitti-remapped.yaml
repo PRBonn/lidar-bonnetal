@@ -1,6 +1,6 @@
 # This file is covered by the LICENSE file in the root of this project.
 name: "kitti"
-labels: 
+labels:
   0 : "unlabeled"
   1 : "outlier"
   10: "car"
@@ -118,30 +118,51 @@ learning_map:
   18: 4     # "truck"
   20: 5     # "other-vehicle"
   30: 6     # "person"
-  31: 7     # "bicyclist"
-  32: 8     # "motorcyclist"
-  40: 9     # "road"
-  44: 10    # "parking"
-  48: 11    # "sidewalk"
-  49: 12    # "other-ground"
-  50: 13    # "building"
-  51: 14    # "fence"
+  31: 7     # "bicyclist" name changed to "rider" --------------------------mapped
+  32: 7     # "motorcyclist" mapped to "rider" --------------------------mapped
+  40: 8     # "road"
+  44: 0    # "parking" mapped to "unlabeled" --------------------------mapped
+  48: 9    # "sidewalk"
+  49: 0    # "other-ground" mapped to "unlabeled" --------------------------mapped
+  50: 10    # "building"
+  51: 11    # "fence"
   52: 0     # "other-structure" mapped to "unlabeled" ------------------mapped
-  60: 9     # "lane-marking" to "road" ---------------------------------mapped
-  70: 15    # "vegetation"
-  71: 16    # "trunk"
-  72: 17    # "terrain"
-  80: 18    # "pole"
-  81: 19    # "traffic-sign"
+  60: 8     # "lane-marking" to "road" ---------------------------------mapped
+  70: 12    # "vegetation"
+  71: 12    # "trunk" mapped to "vegetation" --------------------------mapped
+  72: 13    # "terrain"
+  80: 14    # "pole"
+  81: 15    # "traffic-sign"
   99: 0     # "other-object" to "unlabeled" ----------------------------mapped
   252: 1    # "moving-car" to "car" ------------------------------------mapped
-  253: 7    # "moving-bicyclist" to "bicyclist" ------------------------mapped
+  253: 7    # "moving-bicyclist" to "rider" ------------------------mapped
   254: 6    # "moving-person" to "person" ------------------------------mapped
-  255: 8    # "moving-motorcyclist" to "motorcyclist" ------------------mapped
+  255: 7    # "moving-motorcyclist" to "rider" ------------------mapped
   256: 5    # "moving-on-rails" mapped to "other-vehicle" --------------mapped
   257: 5    # "moving-bus" mapped to "other-vehicle" -------------------mapped
   258: 4    # "moving-truck" to "truck" --------------------------------mapped
   259: 5    # "moving-other"-vehicle to "other-vehicle" ----------------mapped
+learning_map_2:
+  0: 0 #void : [0, 0, 0]
+  1: 8 #road : [128, 64, 128]
+  2: 9 #sidewalk : [244, 35, 232]
+  3: 10 #building : [70, 70, 70]
+  4: 10 #wall : [102, 102, 156] -> building
+  5: 11 #fence : [190, 153, 153]
+  6: 14 #pole : [153, 153, 153]
+  7: 14 #traffic light : [250, 170, 30] -> pole
+  8: 15 #traffic sign : [220, 220, 0]
+  9: 12 #vegetation : [107, 142, 35]
+  10: 13 #terrain : [152, 251, 152]
+  11: 0 #sky : [70, 130, 180] -> None
+  12: 6 #person : [220, 20, 60]
+  13: 7 #rider : [255, 0, 0]
+  14: 1 #car : [0, 0, 142]
+  15: 4 #truck : [0, 0, 70]
+  16: 5 #bus : [0, 60, 100]
+  17: 5 #train: 5 : [0, 80, 100] -> other vehicle
+  18: 3 #motorcycle : [0, 0, 230]
+  19: 2 #bicycle : [119, 11, 32]
 learning_map_inv: # inverse of previous map
   0: 0      # "unlabeled", and others ignored
   1: 10     # "car"
@@ -150,19 +171,15 @@ learning_map_inv: # inverse of previous map
   4: 18     # "truck"
   5: 20     # "other-vehicle"
   6: 30     # "person"
-  7: 31     # "bicyclist"
-  8: 32     # "motorcyclist"
-  9: 40     # "road"
-  10: 44    # "parking"
-  11: 48    # "sidewalk"
-  12: 49    # "other-ground"
-  13: 50    # "building"
-  14: 51    # "fence"
-  15: 70    # "vegetation"
-  16: 71    # "trunk"
-  17: 72    # "terrain"
-  18: 80    # "pole"
-  19: 81    # "traffic-sign"
+  7: 31     # "rider"
+  8: 40     # "road"
+  9: 48     # "sidewalk"
+  10: 50    # "building"
+  11: 51    # "fence"
+  12: 70    # "vegetation"
+  13: 72    # "terrain"
+  14: 80    # "pole"
+  15: 81    # "traffic-sign"
 learning_ignore: # Ignore classes
   0: True      # "unlabeled", and others ignored
   1: False     # "car"
@@ -171,19 +188,15 @@ learning_ignore: # Ignore classes
   4: False     # "truck"
   5: False     # "other-vehicle"
   6: False     # "person"
-  7: False     # "bicyclist"
-  8: False     # "motorcyclist"
-  9: False     # "road"
-  10: False    # "parking"
-  11: False    # "sidewalk"
-  12: False    # "other-ground"
-  13: False    # "building"
-  14: False    # "fence"
-  15: False    # "vegetation"
-  16: False    # "trunk"
-  17: False    # "terrain"
-  18: False    # "pole"
-  19: False    # "traffic-sign"
+  7: False     # "rider"
+  8: False     # "road"
+  9: False     # "sidewalk"
+  10: False    # "building"
+  11: False    # "fence"
+  12: False    # "vegetation"
+  13: False    # "terrain"
+  14: False    # "pole"
+  15: False    # "traffic-sign"
 split: # sequence numbers
   train:
     - 0
@@ -199,7 +212,6 @@ split: # sequence numbers
     - 7
   test:
     - 8
-
   # train:
   #   - 0
   #   - 1

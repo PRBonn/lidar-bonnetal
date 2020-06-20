@@ -39,8 +39,8 @@ class iouEval:
       y = torch.from_numpy(np.array(y)).long().to(self.device)
 
     # sizes should be "batch_size x H x W"
-    x_row = x.reshape(-1)  # de-batchify
-    y_row = y.reshape(-1)  # de-batchify
+    x_row = x.reshape(-1).long()  # de-batchify
+    y_row = y.reshape(-1).long()  # de-batchify
 
     # idxs are labels and predictions
     idxs = torch.stack([x_row, y_row], dim=0)
