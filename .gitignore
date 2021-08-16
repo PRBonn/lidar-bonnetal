@@ -9,3 +9,8 @@
 devel/
 logs/
 external.hpp
+venv
+log/
+test_log/
+Training_Tom/
+darknet53/

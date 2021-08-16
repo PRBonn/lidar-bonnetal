@@ -9,7 +9,7 @@ from shutil import copyfile
 import os
 import shutil
 import __init__ as booger
-
+import sys
 from tasks.semantic.modules.trainer import *
 
 if __name__ == '__main__':

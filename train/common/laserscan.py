@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 # This file is covered by the LICENSE file in the root of this project.
 import numpy as np
-
+import open3d as o3d
+from torch import clamp
+print("what")
+from pypcd import pypcd
+import json
+import os
 
 class LaserScan:
   """Class that contains LaserScan with x,y,z,r"""
-  EXTENSIONS_SCAN = ['.bin']
+  EXTENSIONS_SCAN = ['.pcd']
 
   def __init__(self, project=False, H=64, W=1024, fov_up=3.0, fov_down=-25.0):
     self.project = project
@@ -55,7 +60,7 @@ class LaserScan:
   def __len__(self):
     return self.size()
 
-  def open_scan(self, filename):
+  def open_scan_(self, filename):
     """ Open raw scan and fill in attributes
     """
     # reset just in case there was an open structure
@@ -77,6 +82,30 @@ class LaserScan:
     # put in attribute
     points = scan[:, 0:3]    # get xyz
     remissions = scan[:, 3]  # get remission
+    self.set_points(points, remissions)
+
+  def open_scan(self, filename):
+    """ Open raw scan and fill in attributes
+    """
+    # reset just in case there was an open structure
+    self.reset()
+
+    # check filename is string
+    if not isinstance(filename, str):
+      raise TypeError("Filename should be string type, "
+                      "but was {type}".format(type=str(type(filename))))
+
+    # check extension is a laserscan
+    if not any(filename.endswith(ext) for ext in self.EXTENSIONS_SCAN):
+      raise RuntimeError("Filename extension is not valid scan file.")
+
+    # if all goes well, open pointcloud
+    pcd = o3d.io.read_point_cloud(filename)
+    points = (np.asarray(pcd.points))
+   #Tree trunks to same dict
+    pc = pypcd.PointCloud.from_path(filename)
+    remissions = pc.pc_data['intensity']
+    # put in attribute
     self.set_points(points, remissions)
 
   def set_points(self, points, remissions=None):
@@ -117,6 +146,7 @@ class LaserScan:
 
     # get depth of all points
     depth = np.linalg.norm(self.points, 2, axis=1)
+    depth[depth == 0] = 0.0000001 #Stop divide by 0
 
     # get scan components
     scan_x = self.points[:, 0]
@@ -138,11 +168,13 @@ class LaserScan:
     # round and clamp for use as index
     proj_x = np.floor(proj_x)
     proj_x = np.minimum(self.proj_W - 1, proj_x)
+    proj_x[proj_x < 0] = 0
     proj_x = np.maximum(0, proj_x).astype(np.int32)   # in [0,W-1]
     self.proj_x = np.copy(proj_x)  # store a copy in orig order
 
     proj_y = np.floor(proj_y)
     proj_y = np.minimum(self.proj_H - 1, proj_y)
+    proj_y[proj_y < 0] = 0
     proj_y = np.maximum(0, proj_y).astype(np.int32)   # in [0,H-1]
     self.proj_y = np.copy(proj_y)  # stope a copy in original order
 
@@ -169,7 +201,7 @@ class LaserScan:
 
 class SemLaserScan(LaserScan):
   """Class that contains LaserScan with x,y,z,r,sem_label,sem_color_label,inst_label,inst_color_label"""
-  EXTENSIONS_LABEL = ['.label']
+  EXTENSIONS_LABEL = ['.pcd']
 
   def __init__(self,  sem_color_dict=None, project=False, H=64, W=1024, fov_up=3.0, fov_down=-25.0, max_classes=300):
     super(SemLaserScan, self).__init__(project, H, W, fov_up, fov_down)
@@ -229,18 +261,25 @@ class SemLaserScan(LaserScan):
   def open_label(self, filename):
     """ Open raw scan and fill in attributes
     """
+    key = os.path.split(filename)[-1][:-4]
+    filename = os.path.join(os.path.sep.join(filename.split(os.sep)[:-4]), "dataset_ouster_labels.json")
     # check filename is string
     if not isinstance(filename, str):
       raise TypeError("Filename should be string type, "
                       "but was {type}".format(type=str(type(filename))))
 
     # check extension is a laserscan
-    if not any(filename.endswith(ext) for ext in self.EXTENSIONS_LABEL):
-      raise RuntimeError("Filename extension is not valid label file.")
+    # if not any(filename.endswith(ext) for ext in self.EXTENSIONS_LABEL):
+    #   raise RuntimeError("Filename extension is not valid label file.")
 
+    label_dict = json.load(open(filename))
+    label = np.asarray(label_dict[key]['labels'])
+    label[label >= 254] = 71
+    label[label == 0] = 70
+    # print(label)
     # if all goes well, open label
-    label = np.fromfile(filename, dtype=np.int32)
-    label = label.reshape((-1))
+    # label = np.fromfile(filename, dtype=np.int32)
+    # label = label.reshape((-1))
 
     # set it
     self.set_label(label)
@@ -254,15 +293,15 @@ class SemLaserScan(LaserScan):
 
     # only fill in attribute if the right size
     if label.shape[0] == self.points.shape[0]:
-      self.sem_label = label & 0xFFFF  # semantic label in lower half
-      self.inst_label = label >> 16    # instance id in upper half
+      self.sem_label = label.astype(int)  # semantic label in lower half
+      self.inst_label = label.astype(int)  # instance id in upper half // This might break it
     else:
       print("Points shape: ", self.points.shape)
       print("Label shape: ", label.shape)
       raise ValueError("Scan and Label don't contain same number of points")
 
     # sanity check
-    assert((self.sem_label + (self.inst_label << 16) == label).all())
+    # assert((self.sem_label + (self.inst_label << 16) == label).all())
 
     if self.project:
       self.do_label_projection()

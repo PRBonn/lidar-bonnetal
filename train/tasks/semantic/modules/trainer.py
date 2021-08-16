@@ -51,7 +51,9 @@ class Trainer():
 
     # get the data
     parserPath = os.path.join(booger.TRAIN_PATH, "tasks", "semantic",  "dataset", self.DATA["name"], "parser.py")
+    print(parserPath)
     parserModule = imp.load_source("parserModule", parserPath)
+    print("neat")
     self.parser = parserModule.Parser(root=self.datadir,
                                       train_sequences=self.DATA["split"]["train"],
                                       valid_sequences=self.DATA["split"]["valid"],
@@ -305,6 +307,7 @@ class Trainer():
     end = time.time()
     for i, (in_vol, proj_mask, proj_labels, _, path_seq, path_name, _, _, _, _, _, _, _, _, _) in enumerate(train_loader):
         # measure data loading time
+      print(i)
       data_time.update(time.time() - end)
       if not self.multi_gpu and self.gpu:
         in_vol = in_vol.cuda()
