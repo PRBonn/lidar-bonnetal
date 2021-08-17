@@ -6,6 +6,7 @@ import datetime
 import os
 import subprocess
 
+import open3d as o3d
 import onnx
 import torch
 import yaml
