@@ -1,0 +1,29 @@
+# This file is covered by the LICENSE file in the root of this project.
+name: "quad"
+labels: 
+  0 : "unlabeled"
+  0 : "trunk"
+color_map: # bgr
+  0 : [0, 0, 0]
+  1 : [255, 255, 255]
+content: # as a ratio with the total number of points
+  0: 0.7
+  1: 0.3
+# classes that are indistinguishable from single scan or inconsistent in
+# ground truth are mapped to their closest equivalent
+learning_map:
+  0 : 0     # "unlabeled"
+  1 : 1     # "outlier" mapped to "unlabeled" --------------------------mapped
+learning_map_inv: # inverse of previous map
+  0: 0      # "unlabeled", and others ignored
+  1: 1     # "car"
+learning_ignore: # Ignore classes
+  0: False      # "unlabeled", and others ignored
+  1: False    # "car"
+split: # sequence numbers
+  train:
+    - 0
+  valid:
+    - 1
+  test:
+    - 2

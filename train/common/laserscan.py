@@ -7,6 +7,7 @@ print("what")
 from pypcd import pypcd
 import json
 import os
+import pdb
 
 class LaserScan:
   """Class that contains LaserScan with x,y,z,r"""
@@ -104,6 +105,7 @@ class LaserScan:
     points = (np.asarray(pcd.points))
    #Tree trunks to same dict
     pc = pypcd.PointCloud.from_path(filename)
+    # pdb.set_trace()
     remissions = pc.pc_data['intensity']
     # put in attribute
     self.set_points(points, remissions)
@@ -274,8 +276,8 @@ class SemLaserScan(LaserScan):
 
     label_dict = json.load(open(filename))
     label = np.asarray(label_dict[key]['labels'])
-    label[label >= 254] = 71
-    label[label == 0] = 70
+    label[label == 255] = 1
+    label[label <= 254] = 0
     # print(label)
     # if all goes well, open label
     # label = np.fromfile(filename, dtype=np.int32)
