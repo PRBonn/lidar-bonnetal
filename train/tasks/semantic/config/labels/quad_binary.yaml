@@ -2,24 +2,30 @@
 name: "quad"
 labels: 
   0 : "unlabeled"
-  0 : "trunk"
+  1 : "bkg"
+  2 : "trunk"
 color_map: # bgr
   0 : [0, 0, 0]
-  1 : [255, 255, 255]
+  1 : [0, 0, 255]
+  2 : [255, 255, 255]
 content: # as a ratio with the total number of points
-  0: 0.7
-  1: 0.3
+  0: 1.0
+  1: 0.8
+  2: 0.2
 # classes that are indistinguishable from single scan or inconsistent in
 # ground truth are mapped to their closest equivalent
 learning_map:
   0 : 0     # "unlabeled"
-  1 : 1     # "outlier" mapped to "unlabeled" --------------------------mapped
+  1 : 1     #  bkg
+  2 : 2     #  trunk
 learning_map_inv: # inverse of previous map
-  0: 0      # "unlabeled", and others ignored
-  1: 1     # "car"
+  0 : 0     # "unlabeled"
+  1 : 1     #  bkg
+  2 : 2     #  trunk
 learning_ignore: # Ignore classes
-  0: False      # "unlabeled", and others ignored
+  0: True      # "unlabeled", and others ignored
   1: False    # "car"
+  2: False    # "car"
 split: # sequence numbers
   train:
     - 0

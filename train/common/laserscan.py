@@ -276,9 +276,8 @@ class SemLaserScan(LaserScan):
 
     label_dict = json.load(open(filename))
     label = np.asarray(label_dict[key]['labels'])
-    label[label == 255] = 1
-    label[label <= 254] = 0
-    # print(label)
+    label[label <= 254] = 1
+    label[label == 255] = 2
     # if all goes well, open label
     # label = np.fromfile(filename, dtype=np.int32)
     # label = label.reshape((-1))
