@@ -11,7 +11,8 @@ import onnx
 import torch
 import yaml
 import __init__ as Booger
-from tasks.semantic.modules.user import User
+#from tasks.semantic.modules.user import User
+from tasks.semantic.modules.segmentator import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("./create_onnx.py")
@@ -74,8 +75,12 @@ if __name__ == '__main__':
         quit()
 
     # create user to access model
-    user = User(ARCH, DATA, FLAGS.dataset, FLAGS.log, FLAGS.model)
-    model = user.model
+    #user = User(ARCH, DATA, FLAGS.dataset, FLAGS.log, FLAGS.model)
+    #model = user.model
+    with torch.no_grad():
+      model = Segmentator(ARCH,
+                          2,
+                          FLAGS.model)
 
     # report model parameters
     weights_total = sum(p.numel() for p in model.parameters())
@@ -103,4 +108,4 @@ if __name__ == '__main__':
     model_onnx = onnx.load(onnx_path)
     onnx.checker.check_model(model_onnx)
     # Print a human readable representation of the graph
-    print(onnx.helper.printable_graph(model_onnx.graph))
+    #print(onnx.helper.printable_graph(model_onnx.graph))

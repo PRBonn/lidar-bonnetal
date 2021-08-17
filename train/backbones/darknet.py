@@ -156,7 +156,7 @@ class Backbone(nn.Module):
 
   def forward(self, x):
     # filter input
-    x = x[:, self.input_idxs]
+    #x = x[:, self.input_idxs]
 
     # run cnn
     # store for skip connections
