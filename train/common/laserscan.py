@@ -7,6 +7,7 @@ print("what")
 from pypcd import pypcd
 import json
 import os
+import re
 
 class LaserScan:
   """Class that contains LaserScan with x,y,z,r"""
@@ -201,7 +202,7 @@ class LaserScan:
 
 class SemLaserScan(LaserScan):
   """Class that contains LaserScan with x,y,z,r,sem_label,sem_color_label,inst_label,inst_color_label"""
-  EXTENSIONS_LABEL = ['.pcd']
+  EXTENSIONS_LABEL = ['.npy']
 
   def __init__(self,  sem_color_dict=None, project=False, H=64, W=1024, fov_up=3.0, fov_down=-25.0, max_classes=300):
     super(SemLaserScan, self).__init__(project, H, W, fov_up, fov_down)
@@ -261,21 +262,42 @@ class SemLaserScan(LaserScan):
   def open_label(self, filename):
     """ Open raw scan and fill in attributes
     """
+    # This could be cleaned up
     key = os.path.split(filename)[-1][:-4]
+    original_filename = filename
     filename = os.path.join(os.path.sep.join(filename.split(os.sep)[:-4]), "dataset_ouster_labels.json")
     # check filename is string
     if not isinstance(filename, str):
       raise TypeError("Filename should be string type, "
                       "but was {type}".format(type=str(type(filename))))
+    if os.path.isfile(filename):
+      #uses json file
+      label_dict = json.load(open(filename))
+      label = np.asarray(label_dict[key]['labels'])
+      label[label > 0] = 2
+      label[label == 0] = 1
+    else:
+      number = re.findall(r'[0-9]+', key)[0]
+      filename = os.path.join(os.path.sep.join(original_filename.split(os.sep)[:-2]), "labels",
+                              "label_" + number + ".npy")
+      if os.path.isfile(filename):
+        label = np.load(filename)
+      else:
+        filename = os.path.join(os.path.sep.join(original_filename.split(os.sep)[:-2]), "predictions",
+                                key + ".npy")
+        print(filename)
+        label = np.load(filename)
+
+
+
+
+
 
     # check extension is a laserscan
     # if not any(filename.endswith(ext) for ext in self.EXTENSIONS_LABEL):
     #   raise RuntimeError("Filename extension is not valid label file.")
 
-    label_dict = json.load(open(filename))
-    label = np.asarray(label_dict[key]['labels'])
-    label[label >= 254] = 71
-    label[label == 0] = 70
+
     # print(label)
     # if all goes well, open label
     # label = np.fromfile(filename, dtype=np.int32)

@@ -147,8 +147,9 @@ class User():
 
         # map to original label
         pred_np = to_orig_fn(pred_np)
-
+        print(pred_np)
         # save scan
+        path_name=path_name[:-4] +".npy"
         path = os.path.join(self.logdir, "sequences",
                             path_seq, "predictions", path_name)
-        pred_np.tofile(path)
+        np.save(path, pred_np)
