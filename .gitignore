@@ -14,3 +14,8 @@ log/
 test_log/
 Training_Tom/
 darknet53/
+simulated_data/
+pre_trained_models/
+range_images/
+pip_requirements.
+trained_models/

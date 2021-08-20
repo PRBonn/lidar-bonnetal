@@ -1,3 +1,4 @@
 eval "$(conda shell.bash hook)"
 conda activate seg
-python3.7 create_onnx.py -d /home/gnardari/Documents/data/ -l ../../../quad_darknet21/ -m ../../../quad_darknet21
+CUDA_VISIBLE_DEVICES="" python3.7 create_onnx.py -d /home/gnardari/Documents/data/ -l ../../../quad_small/ -m ../../../quad_small
+#CUDA_VISIBLE_DEVICES="" python3.7 create_onnx.py -d /home/gnardari/Documents/data/ -l ../../../quad_log/ -m ../../../quad_log

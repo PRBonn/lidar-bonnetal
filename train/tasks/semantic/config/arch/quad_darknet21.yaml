@@ -75,8 +75,8 @@ post:
 ################################################################################
 # dataset (to find parser)
 dataset:
-  labels: "kitti"
-  scans: "kitti"
+  labels: "quad"
+  scans: "quad"
   max_points: 150000 # max of any scan in dataset
   sensor:
     name: "HDL64"

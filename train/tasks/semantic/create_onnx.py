@@ -11,7 +11,7 @@ import onnx
 import torch
 import yaml
 import __init__ as Booger
-#from tasks.semantic.modules.user import User
+from tasks.semantic.modules.user import User
 from tasks.semantic.modules.segmentator import *
 
 if __name__ == '__main__':
@@ -75,12 +75,12 @@ if __name__ == '__main__':
         quit()
 
     # create user to access model
-    #user = User(ARCH, DATA, FLAGS.dataset, FLAGS.log, FLAGS.model)
-    #model = user.model
-    with torch.no_grad():
-      model = Segmentator(ARCH,
-                          2,
-                          FLAGS.model)
+    user = User(ARCH, DATA, FLAGS.dataset, FLAGS.log, FLAGS.model)
+    model = user.model
+    #with torch.no_grad():
+    #  model = Segmentator(ARCH,
+    #                      3,
+    #                      FLAGS.model)
 
     # report model parameters
     weights_total = sum(p.numel() for p in model.parameters())
@@ -92,13 +92,14 @@ if __name__ == '__main__':
     # convert to ONNX
     dummy_input = torch.randn(1, 5,
                               64,
-                              2048, device='cuda')
+                              2048, device='cpu')
     # (Pdb) proj_in.shape
     # torch.Size([1, 5, 64, 2048])
     # (Pdb) proj_range.shape (also proj_range)
     # torch.Size([1, 64, 2048])
 
-    model = model.cuda().eval()
+    #model = model.cuda().eval()
+    model = model.eval()
     onnx_path = os.path.join(FLAGS.model, "model.onnx")
     print("saving model in ", onnx_path)
     with torch.no_grad():
