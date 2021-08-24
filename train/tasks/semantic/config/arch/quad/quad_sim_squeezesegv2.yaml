@@ -27,14 +27,12 @@ backbone:
   name: "squeezesegV2"  # ['squeezeseg', 'squeezesegV2', 'darknet']
   input_depth:
     range: True
-    xyz: True
-    remission: True
+    xyz: False
+    remission: False
   dropout: 0.01
   bn_d: 0.01
-  OS: 16 # output stride (only horizontally)
-  train: False # train backbone?
-  extra:
-    layers: 3
+  OS: 8 # output stride (only horizontally)
+  train: True # train backbone?
 
 ################################################################################
 # decoder parameters
@@ -87,14 +85,6 @@ dataset:
       width: 2048
       height: 64
     img_means: #range,x,y,z,signal
-      - 12.97
-      - -0.21
-      - -0.13
-      - 0.26
-      - 942.62
+      - 3.5
     img_stds: #range,x,y,z,signal
-      - 12.35
-      - 12.04
-      - 12.95
-      - 2.86
-      - 1041.79
+      - 6

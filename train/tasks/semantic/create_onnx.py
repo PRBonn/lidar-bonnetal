@@ -90,7 +90,7 @@ if __name__ == '__main__':
     print("Total number of parameters requires_grad: ", weights_grad)
 
     # convert to ONNX
-    dummy_input = torch.randn(1, 5,
+    dummy_input = torch.randn(1, 1,
                               64,
                               2048, device='cpu')
     # (Pdb) proj_in.shape

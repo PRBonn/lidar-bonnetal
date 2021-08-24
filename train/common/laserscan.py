@@ -104,9 +104,10 @@ class LaserScan:
     # if all goes well, open pointcloud
     pcd = o3d.io.read_point_cloud(filename)
     points = (np.asarray(pcd.points))
-   #Tree trunks to same dict
+    #Tree trunks to same dict
     pc = pypcd.PointCloud.from_path(filename)
     # pdb.set_trace()
+    # remissions = None
     remissions = pc.pc_data['intensity']
     remissions[remissions > 3500] = 0
     # put in attribute
@@ -152,18 +153,16 @@ class LaserScan:
     depth = np.linalg.norm(self.points, 2, axis=1)
     depth[depth == 0] = 0.0000001 #Stop divide by 0
 
-    self.mask = depth > 30.0
-
     # get scan components
     scan_x = self.points[:, 0]
     scan_y = self.points[:, 1]
     scan_z = self.points[:, 2]
 
-    depth[self.mask] = 0.00000001
-    scan_x[self.mask] = 0
-    scan_y[self.mask] = 0
-    scan_z[self.mask] = 0
-    self.remissions[self.mask] = 0
+    # depth[self.mask] = 0.00000001
+    # scan_x[self.mask] = 0
+    # scan_y[self.mask] = 0
+    # scan_z[self.mask] = 0
+    # self.remissions[self.mask] = 0
 
     # get angles of all points
     yaw = -np.arctan2(scan_y, scan_x)
@@ -298,7 +297,7 @@ class SemLaserScan(LaserScan):
                                 key + ".npy")
         print(filename)
         label = np.load(filename)
-    label[self.mask] = 1
+    # label[self.mask] = 1
 
 
 
