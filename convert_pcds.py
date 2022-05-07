@@ -1,3 +1,4 @@
+# Convert the original labeled tree-only .pcd files into .npy label files 
 import open3d as o3d
 import numpy as np
 for i in range(0,194):

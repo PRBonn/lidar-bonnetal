@@ -15,7 +15,8 @@ from tasks.semantic.modules.trainer import *
 if __name__ == '__main__':
   parser = argparse.ArgumentParser("./train.py")
   parser.add_argument(
-      '--dataset', '-d',
+      # this should be where the parent folder of sequences folder
+      '--dataset_root_directory', '-d',
       type=str,
       required=True,
       help='Dataset to train with. No Default',
@@ -52,7 +53,7 @@ if __name__ == '__main__':
   # print summary of what we will do
   print("----------")
   print("INTERFACE:")
-  print("dataset", FLAGS.dataset)
+  print("dataset", FLAGS.dataset_root_directory)
   print("arch_cfg", FLAGS.arch_cfg)
   print("data_cfg", FLAGS.data_cfg)
   print("log", FLAGS.log)
@@ -111,5 +112,5 @@ if __name__ == '__main__':
     quit()
 
   # create trainer and start the training
-  trainer = Trainer(ARCH, DATA, FLAGS.dataset, FLAGS.log, FLAGS.pretrained)
+  trainer = Trainer(ARCH, DATA, FLAGS.dataset_root_directory, FLAGS.log, FLAGS.pretrained)
   trainer.train()
