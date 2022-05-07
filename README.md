@@ -62,6 +62,12 @@ Note: this will take a while (> 1 hour for me)
 
 Option 2. Using conda: see conda_requirements.txt
 
+Troubleshooting:
+
+1. if you run into pypcd issues, this might be helpful: https://github.com/dimatura/pypcd/issues/28
+
+2. TO BE CONTINUED...
+
 ### Step: start training:
 python train/tasks/semantic/train.py
 
