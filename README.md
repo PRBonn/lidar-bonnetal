@@ -52,10 +52,13 @@ Put data into simulated_data folder (folder structure looks like this: lidar-bon
 ### Step: Installing dependencies
 Option 1. Using pip:
 ```
+cd train
+pip install -r requirements.txt
+cd ..
 pip freeze > pip_requirements.txt
 pip install -r pip_requirements.txt 
 ```
-Note: this will take a while (13:00pm - ?? for me)
+Note: this will take a while (> 1 hour for me)
 
 Option 2. Using conda: see conda_requirements.txt
 
