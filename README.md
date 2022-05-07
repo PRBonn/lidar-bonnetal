@@ -1,4 +1,82 @@
-# LiDAR-Bonnetal
+
+# Specific instructions for our use:
+
+## Some helpful additional utils:
+
+1. **Convert the original labeled tree-only .pcd files into .npy label files**: 
+
+see convert_pcds.py
+
+2. **Split training and test data**: 
+
+see train_test_split.py
+
+_Example usage:_
+
+Step 1: Make sure all your data are in the range_images folder:
+
+For this, you can get one example from our provided dataset (see below) and then run the following steps:
+
+Download data from https://drive.google.com/drive/folders/16MSQf-tdD1QTYpVVtElMy1enAQv7hFAR?usp=sharing
+
+Put data into simulated_data folder (folder structure looks like this: lidar-bonnetal->simulated_data->sequences)
+
+Copy all pcd files to range_images directory using the following commands:
+```
+cd ~/lidar-bonnetal
+cp -r simulated_data/sequences/*/*.pcd range_images/
+```
+
+Copy all label files to range_images directory using the following commands:
+```
+mkdir range_images/labels
+cp -r simulated_data/sequences/*/labels/*.npy range_images/labels
+```
+
+Step 2: Training and validation splitting set by running the following commands:
+```
+cd ~/lidar-bonnetal
+python train_test_split.py
+```
+
+
+## Step-by-step instructions with our example data
+
+### Step: preparing data
+Create folders named range_images and simulated_data in this root directory 
+
+Download data from https://drive.google.com/drive/folders/16MSQf-tdD1QTYpVVtElMy1enAQv7hFAR?usp=sharing
+
+Put data into simulated_data folder (folder structure looks like this: lidar-bonnetal->simulated_data->sequences)
+
+### Step: Installing dependencies
+Option 1. Using pip:
+```
+cd train
+pip install -r requirements.txt
+cd ..
+pip freeze > pip_requirements.txt
+pip install -r pip_requirements.txt 
+```
+Note: this will take a while (> 1 hour for me)
+
+Option 2. Using conda: see conda_requirements.txt
+
+Troubleshooting:
+
+1. if you run into pypcd issues, this might be helpful: https://github.com/dimatura/pypcd/issues/28
+
+2. TO BE CONTINUED...
+
+### Step: start training:
+python train/tasks/semantic/train.py
+
+
+
+
+
+
+# Official instructions for LiDAR-Bonnetal
 
 Semantic Segmentation of point clouds using range images.
 
