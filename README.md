@@ -66,11 +66,20 @@ Troubleshooting:
 
 1. if you run into pypcd issues, this might be helpful: https://github.com/dimatura/pypcd/issues/28
 
-2. TO BE CONTINUED...
+2. if you run into issues related to "libcudart.so.11.0 cannot found", first and install cuda toolkit from (here)[https://developer.nvidia.com/cuda-11.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=2004&target_type=runfilelocal] 
+then, execute the following command:
+```
+cd /usr/local/lib
+sudo ln -s /usr/local/cuda-11.0/lib64/libcudart.so.11.0
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+```
+
 
 ### Step: start training:
-python train/tasks/semantic/train.py
-
+```
+cd ./train/tasks/semantic
+./train-full-script.sh
+```
 
 
 
