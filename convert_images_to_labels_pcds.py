@@ -92,15 +92,14 @@ for fname in fnames:
     xyz[:,2] = z
     intensity = scan[:,:,3].flatten()
     intensities = np.zeros((intensity.shape[0],3))
-    intensities[:,0] = intensity * 255
-    intensities[:,1] = intensity * 255
-    intensities[:,2] = intensity * 255
+    intensities[:,0] = intensity 
+    intensities[:,1] = intensity
+    intensities[:,2] = intensity 
     pcd.points = o3d.utility.Vector3dVector(xyz)
     # HACK: color channel will be storing intensity information
     pcd.colors = o3d.utility.Vector3dVector(intensities)
 
     # save point cloud as pcd files in converted_scans folder
-    label.flatten()
     save_dir = data_dir + "/converted_scans/"
     if os.path.exists(save_dir):
         os.rmdir(save_dir)
