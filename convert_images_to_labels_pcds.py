@@ -42,43 +42,44 @@ for fname in fnames:
     # - tree_trunk: [0.5, 0.2, 0.2]  -- expected value is 8
     # - light_pole: [1, 0.5, 0]  -- expected value is 9
     label_converted = np.zeros((label.shape[0], label.shape[1]))
-    for i in np.arange(label.shape[0]):
-        for j in np.arange(label.shape[1]):
-            current_label = label[i,j,:]
-            # - unlabelled: [0, 0, 0] -- expected value is 0
-            if np.array_equal(current_label, np.array([0, 0, 0])):
-                label_converted[i,j] = 0
-            # - road: [0, 0, 1]  -- expected value is 1
-            elif np.array_equal(current_label, np.array([0, 0, 1])):
-                label_converted[i,j] = 1
-            # - vegetation: [0, 1, 0]  -- expected value is 2
-            elif np.array_equal(current_label, np.array([0, 1, 0])):
-                label_converted[i,j] = 2
-            # - building: [1, 0, 0]  -- expected value is 3
-            elif np.array_equal(current_label, np.array([1, 0, 0])):
-                label_converted[i,j] = 3
-            # - grass/sidewalk: [0, 0.4, 0]  -- expected value is 4
-            elif np.array_equal(current_label, np.array([0, 0.4, 0])):
-                label_converted[i,j] = 4
-            # - vehicle: [0, 1, 1]  -- expected value is 5
-            elif np.array_equal(current_label, np.array([0, 1, 1])):
-                label_converted[i,j] = 5
-            # - human: [1, 0, 1]  -- expected value is 6
-            elif np.array_equal(current_label, np.array([1, 0, 1])):
-                label_converted[i,j] = 6
-            # - gravel: [0, 0.5, 0.5]  -- expected value is 7
-            elif np.array_equal(current_label, np.array([0, 0.5, 0.5])):
-                label_converted[i,j] = 7
-            # - tree_trunk: [0.5, 0.2, 0.2]  -- expected value is 8
-            elif np.array_equal(current_label, np.array([0.5, 0.2, 0.2])):
-                label_converted[i,j] = 8
-            # - light_pole: [1, 0.5, 0]  -- expected value is 9
-            elif np.array_equal(current_label, np.array([1, 0.5, 0])):
-                label_converted[i,j] = 9
-            else:
-                print("Invalid label included!!")
-                print("Invalid label included!!")
-                print("Invalid label included!!")
+    label_converted = label[:,:,0]
+
+    # this is not needed - Ian directly export labels as 0-9
+    # for i in np.arange(label.shape[0]):
+    #     for j in np.arange(label.shape[1]):
+    #         current_label = label[i,j,:]
+    #         # - unlabelled: [0, 0, 0] -- expected value is 0
+    #         if np.array_equal(current_label, np.array([0, 0, 0])):
+    #             label_converted[i,j] = 0
+    #         # - road: [0, 0, 1]  -- expected value is 1
+    #         elif np.array_equal(current_label, np.array([0, 0, 1])):
+    #             label_converted[i,j] = 1
+    #         # - vegetation: [0, 1, 0]  -- expected value is 2
+    #         elif np.array_equal(current_label, np.array([0, 1, 0])):
+    #             label_converted[i,j] = 2
+    #         # - building: [1, 0, 0]  -- expected value is 3
+    #         elif np.array_equal(current_label, np.array([1, 0, 0])):
+    #             label_converted[i,j] = 3
+    #         # - grass/sidewalk: [0, 0.4, 0]  -- expected value is 4
+    #         elif np.array_equal(current_label, np.array([0, 0.4, 0])):
+    #             label_converted[i,j] = 4
+    #         # - vehicle: [0, 1, 1]  -- expected value is 5
+    #         elif np.array_equal(current_label, np.array([0, 1, 1])):
+    #             label_converted[i,j] = 5
+    #         # - human: [1, 0, 1]  -- expected value is 6
+    #         elif np.array_equal(current_label, np.array([1, 0, 1])):
+    #             label_converted[i,j] = 6
+    #         # - gravel: [0, 0.5, 0.5]  -- expected value is 7
+    #         elif np.array_equal(current_label, np.array([0, 0.5, 0.5])):
+    #             label_converted[i,j] = 7
+    #         # - tree_trunk: [0.5, 0.2, 0.2]  -- expected value is 8
+    #         elif np.array_equal(current_label, np.array([0.5, 0.2, 0.2])):
+    #             label_converted[i,j] = 8
+    #         # - light_pole: [1, 0.5, 0]  -- expected value is 9
+    #         elif np.array_equal(current_label, np.array([1, 0.5, 0])):
+    #             label_converted[i,j] = 9
+    #         else:
+    #             print("Invalid label included!!")
 
     # convert scan image into pcd data format
     # Pass xyz to Open3D.o3d.geometry.PointCloud and visualize
