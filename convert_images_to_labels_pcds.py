@@ -8,6 +8,17 @@ import shutil
 
 data_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/pennovation_dataset/"
 fnames = glob.glob(data_dir + "labels/1*.png") # start with 1 to avoid including the viz_ stuff
+
+save_dir_point_cloud = data_dir + "converted_scans/"
+if os.path.exists(save_dir_point_cloud):
+    shutil.rmtree(save_dir_point_cloud)
+os.mkdir(save_dir_point_cloud)
+
+save_dir_label = data_dir + "converted_labels/"
+if os.path.exists(save_dir_label):
+    shutil.rmtree(save_dir_label)
+os.mkdir(save_dir_label)
+
 for fname in fnames:
     fname_no_png = fname.split(".png")[0]
     fname_no_prefix = fname_no_png.split('/')[-1]
@@ -93,27 +104,20 @@ for fname in fnames:
     xyz[:,2] = z
     intensity = scan[:,:,3].flatten()
     intensities = np.zeros((intensity.shape[0],3))
-    intensities[:,0] = intensity 
+    intensities[:,0] = intensity
     intensities[:,1] = intensity
-    intensities[:,2] = intensity 
+    intensities[:,2] = intensity
     pcd.points = o3d.utility.Vector3dVector(xyz)
     # HACK: color channel will be storing intensity information
     pcd.colors = o3d.utility.Vector3dVector(intensities)
 
     # save point cloud as pcd files in converted_scans folder
-    save_dir = data_dir + "/converted_scans/"
-    if os.path.exists(save_dir):
-        os.rmdir(save_dir)
-    os.mkdir(save_dir)
-    o3d.io.write_point_cloud(save_dir + "point_cloud" + "_" + str(fname) + ".pcd", pcd, write_ascii=True)
+    o3d.io.write_point_cloud(save_dir_point_cloud + "point_cloud" + "_" + str(fname_no_prefix) + ".pcd", pcd, write_ascii=True)
     print("pcds are saved in converted_scans folder!")
 
     # save labels as an 1-d array in converted_labels folder
     label_converted = label_converted.ravel()
-    save_dir = data_dir + "/converted_labels/"
-    if os.path.exists(save_dir):
-        os.rmdir(save_dir)
-    os.mkdir(save_dir)
-    np.save(save_dir + "label" + "_" + str(fname) + ".npy", label_converted)
+
+    np.save(save_dir_label + "label" + "_" + str(fname_no_prefix) + ".npy", label_converted)
     print("labels are saved in converted_labels folder!")
 
