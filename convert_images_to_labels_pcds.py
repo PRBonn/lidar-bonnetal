@@ -10,15 +10,24 @@ data_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/pennovation_dataset/"
 fnames = glob.glob(data_dir + "labels/1*.png") # start with 1 to avoid including the viz_ stuff
 
 save_dir_point_cloud = data_dir + "converted_scans/"
+save_dir_label = data_dir + "converted_labels/"
+
+if os.path.exists(save_dir_point_cloud) or os.path.exists(save_dir_label):
+    print("save_dir_point_cloud or save_dir_label already exists, we are going to remove them, which are: \n" + save_dir_point_cloud + " \n and: \n" +save_dir_label)
+    input("Press Enter to continue...")
+
 if os.path.exists(save_dir_point_cloud):
     shutil.rmtree(save_dir_point_cloud)
 os.mkdir(save_dir_point_cloud)
 
-save_dir_label = data_dir + "converted_labels/"
 if os.path.exists(save_dir_label):
     shutil.rmtree(save_dir_label)
 os.mkdir(save_dir_label)
 
+
+num_classes = 10
+stats = np.zeros((num_classes, len(fnames)))
+file_idx = 0
 for fname in fnames:
     fname_no_png = fname.split(".png")[0]
     fname_no_prefix = fname_no_png.split('/')[-1]
@@ -54,6 +63,17 @@ for fname in fnames:
     # - light_pole: [1, 0.5, 0]  -- expected value is 9
     label_converted = np.zeros((label.shape[0], label.shape[1]))
     label_converted = label[:,:,0]
+
+    # stats of number of points to address class imbalance issues
+    num_pts = 0
+    for i in np.arange(num_classes):
+        stats[i, file_idx] = np.sum((label_converted).ravel() == i)
+        num_pts += stats[i, file_idx]
+    # sanity check: all points should be included in stats:
+    if (num_pts!=label_converted.ravel().shape):
+        raise Exception("labels are not 0-9, invalid labels exist!!!")
+    file_idx+=1
+
 
     # this is not needed - Ian directly export labels as 0-9
     # for i in np.arange(label.shape[0]):
@@ -92,6 +112,9 @@ for fname in fnames:
     #         else:
     #             print("Invalid label included!!")
 
+
+
+
     # convert scan image into pcd data format
     # Pass xyz to Open3D.o3d.geometry.PointCloud and visualize
     pcd = o3d.geometry.PointCloud()
@@ -120,4 +143,13 @@ for fname in fnames:
 
     np.save(save_dir_label + "label" + "_" + str(fname_no_prefix) + ".npy", label_converted)
     print("labels are saved in converted_labels folder!")
+
+# print out the stats
+print("std values of number of points for each class are: ")
+print(np.std(stats, axis=1))
+print("mean values of number of points for each class are: ")
+print(np.mean(stats, axis=1))
+print("mean values of number points for each class / total points are: ")
+print(np.mean(stats, axis=1) / np.sum(np.mean(stats, axis=1)))
+
 

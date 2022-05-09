@@ -3,7 +3,6 @@
 import numpy as np
 import open3d as o3d
 from torch import clamp
-print("what")
 from pypcd import pypcd
 import json
 import os
@@ -107,8 +106,6 @@ class LaserScan:
     pc = pypcd.PointCloud.from_path(filename)
 
     # TODO(xu) this only works with Ian data, make it general
-    print("this only works with Ian data, make it general")
-    print("this only works with Ian data, make it general")
     remissions = np.asarray(pcd.colors)[:,0]
     # remissions =pc.pc_data['intensity']
 

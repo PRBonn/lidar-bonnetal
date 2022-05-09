@@ -28,27 +28,29 @@ labels:
 color_map: # bgr
   0 : [0, 0, 0]
   1 : [0, 0, 255]
-  2: [245, 150, 100]
-  3: [200, 40, 255]
-  4: [75, 0, 75]
-  5: [50, 120, 255]
-  6: [255, 0, 0]
-  7: [80, 240, 150]
-  8: [200, 40, 255]
-  9: [30, 30, 255]
+  2: [0, 255, 0]
+  3: [255, 0, 0]
+  4: [0, 102, 0]
+  5: [0, 255, 255]
+  6: [255, 0, 255]
+  7: [0, 127.5, 127.5]
+  8: [127.5, 51, 51]
+  9: [255, 127.5, 0]
 
 content: # as a ratio with the total number of points
-  0: 0.1
-  1: 0.1
-  2: 0.1
-  3: 0.1
-  4: 0.1
-  5: 0.1
-  6: 0.1
-  7: 0.1
-  8: 0.1
-  9: 0.1
-  
+  # raw stats from the data loader:
+  #  [ 0.17279082 0.44709127 0.07368158 0.21926294 0.03276026 0.04045004
+  #    0.00290192 0.00465596 0.00489525 0.00150997 ]
+  0: 0.17279082 #  0 : "unlabelled"
+  1: 0.44709127 #  1 : "road"
+  2: 0.07368158 #  2: "vegetation"
+  3: 0.21926294 #  3: "building"
+  4: 0.03276026  #  4: "grass-sidewalk
+  5: 0.04045004  #  5: "vehicle"
+  6: 0.00290192  #  6: "human"
+  7: 0.00465596  #  7: "gravel"
+  8: 0.00489525  #  8: "tree_trunk"
+  9: 0.00150997  #  9: "light_pole"
 
 # classes that are indistinguishable from single scan or inconsistent in
 # ground truth are mapped to their closest equivalent
