@@ -57,9 +57,15 @@ Create `pennovation_dataset` folder in the root directory of this repo.
 
 Download data from https://drive.google.com/drive/folders/16MSQf-tdD1QTYpVVtElMy1enAQv7hFAR?usp=sharing
 
-Unzip file and then, copy `labels` and `scans` folders into `pennovation_dataset` folder (folder structure looks like this: lidar-bonnetal->pennovation_dataset->lables)
+Unzip file and then, copy `labels` and `scans` folders into `pennovation_dataset` folder (folder structure looks like this: lidar-bonnetal->pennovation_dataset->lables), then run:
 
-Then, run train_test_split.py. This will automatically create training, validation, and test set for you in `pennovation_dateset/sequences` folder, where `00` is training set, `01` is validation set, and `02` is test set.
+```python convert_images_to_labels_pcds.py```
+
+This will automatically convert range images into `.pcd` files, and labels into `.npy` files. Then run: 
+
+```python train_test_split.py```
+
+This will automatically create training, validation, and test set for you in `pennovation_dateset/sequences` folder, where `00` is training set, `01` is validation set, and `02` is test set.
 
 ### Step: Installing dependencies
 Option 1. Using pip:
