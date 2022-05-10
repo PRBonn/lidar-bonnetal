@@ -86,6 +86,11 @@ sudo ln -s /usr/local/cuda-11.0/lib64/libcudart.so.11.0
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 ```
 
+### Step: download pre-train weights:
+Create a folder called `pennovation-darknet53` in the root directory of this repo.
+
+Download pre-trained model from [this link](http://www.ipb.uni-bonn.de/html/projects/bonnetal/lidar/semantic/predictions/darknet53-1024.tar.gz), extract all files,  Then copy all files into `pennovation-darknet53` folder.
+
 
 ### Step: start training:
 ```
