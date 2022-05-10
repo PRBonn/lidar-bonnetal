@@ -2,6 +2,7 @@
 name: "pennovation"
 
 # Ian's label tool convention:
+# rgb / 255
 # - unlabelled: [0, 0, 0]
 # - road: [0, 0, 1]
 # - vegetation: [0, 1, 0]
@@ -27,15 +28,15 @@ labels:
 
 color_map: # bgr
   0 : [0, 0, 0]
-  1 : [0, 0, 255]
+  1 : [255, 0, 0]
   2: [0, 255, 0]
-  3: [255, 0, 0]
+  3: [0, 0, 255]
   4: [0, 102, 0]
-  5: [0, 255, 255]
+  5: [255, 255, 0]
   6: [255, 0, 255]
-  7: [0, 127.5, 127.5]
-  8: [127.5, 51, 51]
-  9: [255, 127.5, 0]
+  7: [127.5, 127.5, 0]
+  8: [51, 51, 127.5]
+  9: [0, 127.5, 255]
 
 content: # as a ratio with the total number of points
   # raw stats from the data loader:
