@@ -105,9 +105,9 @@ class LaserScan:
    #Tree trunks to same dict
     pc = pypcd.PointCloud.from_path(filename)
 
-    # TODO(xu) this only works with Ian data, make it general
-    remissions = np.asarray(pcd.colors)[:,0]
-    # remissions =pc.pc_data['intensity']
+    # using color to hack intensity (remission) is not doable, it will be casted into only two values, 0 and 1
+    # remissions = np.asarray(pcd.colors)[:,0]
+    remissions =pc.pc_data['intensity']
 
     # put in attribute
     self.set_points(points, remissions)

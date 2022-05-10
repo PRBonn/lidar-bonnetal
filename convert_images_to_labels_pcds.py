@@ -1,10 +1,15 @@
 # Convert the Ian label tool's output labels into npy labels, and the range image input into pcd files
+import time
+
 import open3d as o3d
 import numpy as np
 import glob
 import cv2
 import os
 import shutil
+from pypcd import pypcd
+from termcolor import colored
+import traceback
 
 data_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/pennovation_dataset/"
 fnames = glob.glob(data_dir + "labels/1*.png") # start with 1 to avoid including the viz_ stuff
@@ -61,7 +66,7 @@ for fname in fnames:
     # - gravel: [0, 0.5, 0.5]  -- expected value is 7
     # - tree_trunk: [0.5, 0.2, 0.2]  -- expected value is 8
     # - light_pole: [1, 0.5, 0]  -- expected value is 9
-    label_converted = np.zeros((label.shape[0], label.shape[1]))
+    # label_converted = np.zeros((label.shape[0], label.shape[1]))
     label_converted = label[:,:,0]
 
     # stats of number of points to address class imbalance issues
@@ -126,23 +131,54 @@ for fname in fnames:
     xyz[:,1] = y
     xyz[:,2] = z
     intensity = scan[:,:,3].flatten()
-    intensities = np.zeros((intensity.shape[0],3))
-    intensities[:,0] = intensity
-    intensities[:,1] = intensity
-    intensities[:,2] = intensity
     pcd.points = o3d.utility.Vector3dVector(xyz)
-    # HACK: color channel will be storing intensity information
-    pcd.colors = o3d.utility.Vector3dVector(intensities)
+
+    # TODO(xu:) probably there is faster way to do this, currently using this because this is verified to be correct
+    # create a temp file to store intermediate point cloud
+    point_cloud_temp_fname = save_dir_point_cloud + "temp_pc" + "_" + str(fname_no_prefix) + ".pcd"
+    o3d.io.write_point_cloud(point_cloud_temp_fname, pcd, write_ascii=True)
+
+    # (REMOVED) HACK: color channel will be storing intensity information
+    # intensities = np.zeros((intensity.shape[0],3))
+    # intensities[:,0] = intensity
+    # using color to hack intensity (remission) is not doable, it will be casted into only two values, 0 and 1
+    # pcd.colors = o3d.utility.Vector3dVector(intensities)
+
+    # add intensity using pypcd
+    if os.path.exists(point_cloud_temp_fname):
+        pc = pypcd.PointCloud.from_path(point_cloud_temp_fname)
+    else:
+        raise Exception(point_cloud_temp_fname + " does not exist!!! You can try to add time.sleep(0.1) after o3d.io.write_point_cloud...")
+
+    # old_md = pc.get_metadata()
+    # new_dt = [(f, pc.pc_data.dtype[f]) for f in pc.pc_data.dtype.fields]
+    # new_data = [pc.pc_data[n] for n in pc.pc_data.dtype.names]
+    md = {'fields': ['intensity'], 'count': [1], 'size': [4],'type': ['F']}
+    d = np.rec.fromarrays((np.random.random(len(pc.pc_data))))
+    try:
+        newpc = pypcd.add_fields(pc, md, d)
+    except:
+        traceback.print_exc()
+        raise Exception(colored("READ THIS: for this error, just comment out the two lines (should be line 443 and 444) in pypcd.py file!",'green'))
+
+    new_md = newpc.get_metadata()
+    # setting intensity data
+    newpc.pc_data['intensity'] = intensity
+
 
     # save point cloud as pcd files in converted_scans folder
-    o3d.io.write_point_cloud(save_dir_point_cloud + "point_cloud" + "_" + str(fname_no_prefix) + ".pcd", pcd, write_ascii=True)
-    print("pcds are saved in converted_scans folder!")
+    point_cloud_final_fname = save_dir_point_cloud + "point_cloud" + "_" + str(fname_no_prefix) + ".pcd"
+    newpc.save_pcd(point_cloud_final_fname, compression='binary_compressed')
+    # print("pcds are saved in converted_scans folder!")
+    # remove intermediate point cloud
+    os.remove(point_cloud_temp_fname)
 
     # save labels as an 1-d array in converted_labels folder
     label_converted = label_converted.ravel()
 
     np.save(save_dir_label + "label" + "_" + str(fname_no_prefix) + ".npy", label_converted)
-    print("labels are saved in converted_labels folder!")
+    # print("labels are saved in converted_labels folder!")
+    print("finished processing: ", file_idx, " out of ", len(fnames), " files")
 
 # print out the stats
 print("std values of number of points for each class are: ")
