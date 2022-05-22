@@ -140,5 +140,4 @@ split: # sequence numbers
   valid:
     - 1
   test:
-    - 1
     - 2
