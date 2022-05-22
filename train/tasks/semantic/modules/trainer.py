@@ -76,12 +76,12 @@ class Trainer():
     for cl, freq in DATA["content"].items():
       x_cl = self.parser.to_xentropy(cl)  # map actual class to xentropy class
       content[x_cl] += freq
-    self.loss_w = 1 / (content + epsilon_w)   # get weights
+    self.loss_w = 1 / (content + epsilon_w)   # get weights -- (inverse proportional to number of points)
     for x_cl, w in enumerate(self.loss_w):  # ignore the ones necessary to ignore
       if DATA["learning_ignore"][x_cl]:
         # don't weigh
         self.loss_w[x_cl] = 0
-    print("Loss weights from content: ", self.loss_w.data)
+    print("Loss weights from content (should be inverse proportional to number of points): ", self.loss_w.data)
 
     # concatenate the encoder and the head
     with torch.no_grad():
