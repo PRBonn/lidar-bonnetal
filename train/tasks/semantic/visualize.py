@@ -5,6 +5,7 @@ import argparse
 import os
 import yaml
 import __init__ as booger
+import datetime
 
 from common.laserscan import LaserScan, SemLaserScan
 from common.laserscanvis import LaserScanVis
@@ -14,27 +15,28 @@ if __name__ == '__main__':
   parser.add_argument(
       '--dataset', '-d',
       type=str,
-      required=True,
+      required=False,
+      default="../../../to-visualize/",
       help='Dataset to visualize. No Default',
   )
   parser.add_argument(
       '--config', '-c',
       type=str,
       required=False,
-      default="config/labels/semantic-kitti.yaml",
+      default="./config/labels/pennovation.yaml",
       help='Dataset config file. Defaults to %(default)s',
   )
   parser.add_argument(
       '--sequence', '-s',
       type=str,
-      default="00",
+      default="02",
       required=False,
       help='Sequence to visualize. Defaults to %(default)s',
   )
   parser.add_argument(
       '--predictions', '-p',
       type=str,
-      default=None,
+      default='../../../to-visualize/',
       required=False,
       help='Alternate location for labels, to use predictions folder. '
       'Must point to directory containing the predictions in the proper format '
