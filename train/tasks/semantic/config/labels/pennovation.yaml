@@ -27,7 +27,7 @@ labels:
   9: "light_pole"
 
 color_map: # bgr
-  0 : [128, 128, 128]
+  0 : [255, 0, 0]
   1 : [255, 255, 255]
   2: [0, 0, 0]
   3: [0, 0, 0]
@@ -70,19 +70,18 @@ content: # as a ratio with the total number of points
 
 
 # raw data from Ankit and Xu:
-# [5.92777425e-01 3.21070920e-01 0.00000000e+00 0.00000000e+00
-#  0.00000000e+00 8.15283480e-02 0.00000000e+00 0.00000000e+00
-#  4.05118191e-03 5.72124840e-04]
-  0: 0.593 #  0 : "unlabelled"
-  1: 0.321 #  1 : "road"
+#[0.58629596 0.3241275  0.         0.         0.         0.08267939
+# 0.         0.         0.00624406 0.00065308]
+  0: 0.58629596 #  0 : "unlabelled"
+  1: 0.3241275 #  1 : "road"
   2: 0.0 # 0.07368158 (reduced this weight to 0.5) 2: "vegetation"
   3: 0.0 #  3: "building"
   4: 0.0  #  4: "grass-sidewalk
-  5: 0.028 # 0.082  (increased this weight to 3x)  #  5: "vehicle"
+  5: 0.027 # 0.08267939  (increased this weight to 3x)  #  5: "vehicle"
   6: 0.0  #  6: "human"
   7: 0.0  #  7: "gravel"
-  8: 0.0008  #  0.004 (increased this weight to 5x) 8: "tree_trunk"
-  9: 0.00011 # 0.00057 (increased this weight to 5x)  #  9: "light_pole"
+  8: 0.0012  #  0.00624406 (increased this weight to 5x) 8: "tree_trunk"
+  9: 0.00013 # 0.00065308 (increased this weight to 5x)  #  9: "light_pole"
 
 
 # classes that are indistinguishable from single scan or inconsistent in
