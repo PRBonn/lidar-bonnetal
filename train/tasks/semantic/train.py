@@ -12,31 +12,35 @@ import __init__ as booger
 import sys
 from tasks.semantic.modules.trainer import *
 
+
 if __name__ == '__main__':
   parser = argparse.ArgumentParser("./train.py")
   parser.add_argument(
-      '--dataset', '-d',
+      # this should be where the parent folder of sequences folder
+      '--dataset_root_directory', '-d',
       type=str,
-      required=True,
+      required=False,
+      default="../../../pennovation_dataset/",
       help='Dataset to train with. No Default',
   )
   parser.add_argument(
       '--arch_cfg', '-ac',
       type=str,
-      required=True,
+      required=False,
+      default = "./config/arch/darknet53-knn-1024px-pennovation.yaml",
       help='Architecture yaml cfg file. See /config/arch for sample. No default!',
   )
   parser.add_argument(
       '--data_cfg', '-dc',
       type=str,
       required=False,
-      default='config/labels/semantic-kitti.yaml',
+      default='./config/labels/pennovation.yaml',
       help='Classification yaml cfg file. See /config/labels for sample. No default!',
   )
   parser.add_argument(
       '--log', '-l',
       type=str,
-      default=os.path.expanduser("~") + '/logs/' +
+      default='../../../logs/'  +
       datetime.datetime.now().strftime("%Y-%-m-%d-%H:%M") + '/',
       help='Directory to put the log data. Default: ~/logs/date+time'
   )
@@ -44,7 +48,7 @@ if __name__ == '__main__':
       '--pretrained', '-p',
       type=str,
       required=False,
-      default=None,
+      default="../../../pennovation-darknet53",
       help='Directory to get the pretrained model. If not passed, do from scratch!'
   )
   FLAGS, unparsed = parser.parse_known_args()
@@ -52,7 +56,7 @@ if __name__ == '__main__':
   # print summary of what we will do
   print("----------")
   print("INTERFACE:")
-  print("dataset", FLAGS.dataset)
+  print("dataset", FLAGS.dataset_root_directory)
   print("arch_cfg", FLAGS.arch_cfg)
   print("data_cfg", FLAGS.data_cfg)
   print("log", FLAGS.log)
@@ -111,5 +115,5 @@ if __name__ == '__main__':
     quit()
 
   # create trainer and start the training
-  trainer = Trainer(ARCH, DATA, FLAGS.dataset, FLAGS.log, FLAGS.pretrained)
+  trainer = Trainer(ARCH, DATA, FLAGS.dataset_root_directory, FLAGS.log, FLAGS.pretrained)
   trainer.train()

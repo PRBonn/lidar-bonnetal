@@ -18,21 +18,22 @@ if __name__ == '__main__':
   parser.add_argument(
       '--dataset', '-d',
       type=str,
-      required=True,
+      required=False,
+      default="../../../pennovation_dataset/",
       help='Dataset to train with. No Default',
   )
   parser.add_argument(
       '--log', '-l',
       type=str,
-      default=os.path.expanduser("~") + '/logs/' +
+      default='../../../logs-infer/'  +
       datetime.datetime.now().strftime("%Y-%-m-%d-%H:%M") + '/',
-      help='Directory to put the predictions. Default: ~/logs/date+time'
+      help='Directory to put the predictions. Default: ~/logs-infer/date+time'
   )
   parser.add_argument(
       '--model', '-m',
       type=str,
-      required=True,
-      default=None,
+      required=False,
+      default="../../../pennovation-darknet53",
       help='Directory to get the trained model.'
   )
   FLAGS, unparsed = parser.parse_known_args()

@@ -1,4 +1,147 @@
-# LiDAR-Bonnetal
+
+# Specific instructions for our use:
+
+
+## Important notes:
+Make sure you read all the yaml files that you're using during training. For example, for pennovation and forest dataset, you can check train-script-\*.sh files in [this folder](https://github.com/XuRobotics/lidar-bonnetal/tree/master/train/tasks/semantic) for the yaml files that you're using. 
+
+The neural network yaml files in [this folder](https://github.com/XuRobotics/lidar-bonnetal/tree/master/train/tasks/semantic/config/arch) specify important (hyper)parameters such as the input size, whehter or not to train the backbone, learning rate, etc. 
+
+The label yaml files in [this folder](https://github.com/XuRobotics/lidar-bonnetal/tree/master/train/tasks/semantic/config/labels) specify important dataset parameters such as the semantic classes and their labels, etc.
+
+
+
+## Some helpful additional utils:
+
+1. **Convert the original labeled tree-only .pcd files into .npy label files**: 
+
+see convert_pcds.py
+
+2. **Split training and test data**: 
+
+see train_test_split.py
+
+_Example usage:_
+
+Step 1: Make sure all your data are in the range_images folder:
+
+For this, you can get one example from our provided dataset (see below) and then run the following steps:
+
+Download data from https://drive.google.com/drive/folders/16MSQf-tdD1QTYpVVtElMy1enAQv7hFAR?usp=sharing
+
+Put data into simulated_data folder (folder structure looks like this: lidar-bonnetal->simulated_data->sequences)
+
+Copy all pcd files to range_images directory using the following commands:
+```
+cd ~/lidar-bonnetal
+cp -r simulated_data/sequences/*/*.pcd range_images/
+```
+
+Copy all label files to range_images directory using the following commands:
+```
+mkdir range_images/labels
+cp -r simulated_data/sequences/*/labels/*.npy range_images/labels
+```
+
+Step 2: Training and validation splitting set by running the following commands:
+```
+cd ~/lidar-bonnetal
+python train_test_split.py
+```
+
+
+## Step-by-step instructions with our example data (pennovation)
+
+### Step: preparing data
+Create `pennovation_dataset` folder in the root directory of this repo.
+
+Download data from https://drive.google.com/drive/folders/16MSQf-tdD1QTYpVVtElMy1enAQv7hFAR?usp=sharing
+
+Unzip file and then, copy `labels` and `scans` folders into `pennovation_dataset` folder (folder structure looks like this: lidar-bonnetal->pennovation_dataset->lables), then run:
+
+```python convert_images_to_labels_pcds.py```
+
+This will automatically convert range images into `.pcd` files, and labels into `.npy` files. Then run: 
+
+```python train_test_split.py```
+
+This will automatically create training, validation, and test set for you in `pennovation_dateset/sequences` folder, where `00` is training set, `01` is validation set, and `02` is test set.
+
+### Step: Installing dependencies
+Option 1. Using pip:
+```
+cd train
+pip install -r requirements.txt
+```
+Note: this will take a while (> 1 hour for me)
+
+Option 2. Using conda: see conda_requirements.txt
+
+Troubleshooting:
+
+1. if you run into pypcd issues, this might be helpful: https://github.com/dimatura/pypcd/issues/28
+
+2. if you run into issues related to "libcudart.so.11.0 cannot found", first and install cuda toolkit from (here)[https://developer.nvidia.com/cuda-11.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=2004&target_type=runfilelocal] 
+then, execute the following command:
+```
+cd /usr/local/lib
+sudo ln -s /usr/local/cuda-11.0/lib64/libcudart.so.11.0
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+```
+
+### Step: download pretrained model:
+Create a folder called `pennovation-darknet53` in the root directory of this repo.
+
+Download pre-trained model from [this link](http://www.ipb.uni-bonn.de/html/projects/bonnetal/lidar/semantic/models/darknet53-1024.tar.gz), extract all files,  Then copy all files into `pennovation-darknet53` folder.
+
+
+### Step: start training:
+```
+cd ./train/tasks/semantic
+./train-full-script-pennovation.sh
+```
+
+
+## Step-by-step instructions with our example data (forest)
+
+### Step: preparing data
+Create folders named range_images and simulated_data in the root directory of this repo.
+
+Download data from https://drive.google.com/file/d/16-E5LDpmAMsvXxg0M3jdFZYYVAXDt2I-/view?usp=sharing
+
+Put data into simulated_data folder (folder structure looks like this: lidar-bonnetal->simulated_data->sequences)
+
+### Step: Installing dependencies
+Option 1. Using pip:
+```
+cd train
+pip install -r requirements.txt
+cd ..
+pip freeze > pip_requirements.txt
+pip install -r pip_requirements.txt 
+```
+Note: this will take a while (> 1 hour for me)
+
+Option 2. Using conda: see conda_requirements.txt
+
+
+### Step: start training:
+```
+cd ./train/tasks/semantic
+./train-full-script-forest.sh
+```
+
+
+
+
+**-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------**
+
+**-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------**
+
+**-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------**
+
+
+# Official instructions for LiDAR-Bonnetal
 
 Semantic Segmentation of point clouds using range images.
 

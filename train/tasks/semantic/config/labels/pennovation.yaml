@@ -1,0 +1,143 @@
+# This file is covered by the LICENSE file in the root of this project.
+name: "pennovation"
+
+# Ian's label tool convention:
+# rgb / 255
+# - unlabelled: [0, 0, 0]
+# - road: [0, 0, 1]
+# - vegetation: [0, 1, 0]
+# - building: [1, 0, 0]
+# - grass/sidewalk: [0, 0.4, 0]
+# - vehicle: [0, 1, 1]
+# - human: [1, 0, 1]
+# - gravel: [0, 0.5, 0.5]
+# - tree_trunk: [0.5, 0.2, 0.2]
+# - light_pole: [1, 0.5, 0]
+
+labels: 
+  0 : "unlabelled"
+  1 : "road"
+  2: "vegetation"
+  3: "building"
+  4: "grass-sidewalk"
+  5: "vehicle"
+  6: "human"
+  7: "gravel"
+  8: "tree_trunk"
+  9: "light_pole"
+
+color_map: # bgr
+  0 : [255, 0, 0]
+  1 : [255, 255, 255]
+  2: [0, 0, 0]
+  3: [0, 0, 0]
+  4: [0, 0, 0]
+  5: [255, 255, 0]
+  6: [0, 0, 0]
+  7: [0, 0, 0]
+  8: [0, 255, 0]
+  9: [0, 0, 255]
+
+#  0 : [0, 0, 0]
+#  1 : [255, 0, 0]
+#  2: [0, 255, 0]
+#  3: [0, 0, 255]
+#  4: [0, 102, 0]
+#  5: [255, 255, 0]
+#  6: [255, 0, 255]
+#  7: [127.5, 127.5, 0]
+#  8: [51, 51, 127.5]
+#  9: [0, 127.5, 255]
+
+content: # as a ratio with the total number of points
+  # training loss weight will be inversely proportional to this, i.e.,
+  # self.loss_w = 1 / (content + epsilon_w), see trainer.py
+
+  # raw stats from the data loader:
+  #  [ 0.17279082 0.44709127 0.07368158 0.21926294 0.03276026 0.04045004
+  #    0.00290192 0.00465596 0.00489525 0.00150997 ]
+#  0: 0.17279082 #  0 : "unlabelled"
+#  1: 0.44709127 #  1 : "road"
+#  2: 0.14 # 0.07368158 (reduced this weight to 0.5) 2: "vegetation"
+#  3: 0.21926294 #  3: "building"
+#  4: 0.03276026  #  4: "grass-sidewalk
+#  5: 0.008 # 0.04045004  (increased this weight to 5x)  #  5: "vehicle"
+#  6: 0.00290192  #  6: "human"
+#  7: 0.00465596  #  7: "gravel"
+#  8: 0.000049  #  0.00489525 (increased this weight to 100x) 8: "tree_trunk"
+#  9: 0.000015 # 0.00150997 (increased this weight to 100x)  #  9: "light_pole"
+
+
+
+# raw data from Ankit and Xu:
+#[0.58629596 0.3241275  0.         0.         0.         0.08267939
+# 0.         0.         0.00624406 0.00065308]
+  0: 0.58629596 #  0 : "unlabelled"
+  1: 0.3241275 #  1 : "road"
+  2: 0.0 # 0.07368158 (reduced this weight to 0.5) 2: "vegetation"
+  3: 0.0 #  3: "building"
+  4: 0.0  #  4: "grass-sidewalk
+  5: 0.027 # 0.08267939  (increased this weight to 3x)  #  5: "vehicle"
+  6: 0.0  #  6: "human"
+  7: 0.0  #  7: "gravel"
+  8: 0.0012  #  0.00624406 (increased this weight to 5x) 8: "tree_trunk"
+  9: 0.00013 # 0.00065308 (increased this weight to 5x)  #  9: "light_pole"
+
+
+# classes that are indistinguishable from single scan or inconsistent in
+# ground truth are mapped to their closest equivalent
+# for pennovation dataset, all classes are distinguishable and thus not mapped
+learning_map:
+  0 : 0
+  1 : 1
+  2 : 2
+  3 : 3
+  4 : 4
+  5 : 5
+  6 : 6
+  7 : 7
+  8 : 8
+  9 : 9
+
+learning_map_inv: # inverse of previous map
+  0 : 0
+  1 : 1
+  2 : 2
+  3 : 3
+  4 : 4
+  5 : 5
+  6 : 6
+  7 : 7
+  8 : 8
+  9 : 9
+
+learning_ignore: # Ignore classes
+#  0: "unlabelled"
+#  1: "road"
+#  2: "vegetation"
+#  3: "building"
+#  4: "grass-sidewalk"
+#  5: "vehicle"
+#  6: "human"
+#  7: "gravel"
+#  8: "tree_trunk"
+#  9: "light_pole"
+  0: False
+  1: False
+  2: True
+  3: True
+  4: True
+  5: False
+  6: True
+  7: True
+  8: False    
+  9: False
+
+
+split: # sequence numbers
+  train:
+    - 0
+  valid:
+    - 1
+  test:
+    - 2

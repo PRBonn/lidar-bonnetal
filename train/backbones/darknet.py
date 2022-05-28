@@ -70,6 +70,10 @@ class Backbone(nn.Module):
     if self.use_remission:
       self.input_depth += 1
       self.input_idxs.append(4)
+      print("\n Darknet is using remission (intensity) data \n")
+    else:
+      print("\n Darknet is NOT using remission (intensity) data \n")
+
     print("Depth of backbone input = ", self.input_depth)
 
     # stride play

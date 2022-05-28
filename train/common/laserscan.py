@@ -3,7 +3,6 @@
 import numpy as np
 import open3d as o3d
 from torch import clamp
-print("what")
 from pypcd import pypcd
 import json
 import os
@@ -105,7 +104,11 @@ class LaserScan:
     points = (np.asarray(pcd.points))
    #Tree trunks to same dict
     pc = pypcd.PointCloud.from_path(filename)
-    remissions = pc.pc_data['intensity']
+
+    # using color to hack intensity (remission) is not doable, it will be casted into only two values, 0 and 1
+    # remissions = np.asarray(pcd.colors)[:,0]
+    remissions =pc.pc_data['intensity']
+
     # put in attribute
     self.set_points(points, remissions)
 
