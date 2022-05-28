@@ -72,8 +72,6 @@ Option 1. Using pip:
 ```
 cd train
 pip install -r requirements.txt
-cd ..
-pip install -r pip_requirements.txt 
 ```
 Note: this will take a while (> 1 hour for me)
 
