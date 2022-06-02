@@ -63,7 +63,7 @@ post:
     train: True
     params: False # this should be a dict when in use
   KNN:
-    use: True
+    use: False
     params:
       knn: 5
       search: 5

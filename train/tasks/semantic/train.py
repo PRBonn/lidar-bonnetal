@@ -27,7 +27,7 @@ if __name__ == '__main__':
       '--arch_cfg', '-ac',
       type=str,
       required=False,
-      default = "./config/arch/darknet53-knn-1024px-pennovation.yaml",
+      default = "./config/arch/darknet53-1024px-pennovation.yaml",
       help='Architecture yaml cfg file. See /config/arch for sample. No default!',
   )
   parser.add_argument(
