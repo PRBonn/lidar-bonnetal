@@ -72,9 +72,6 @@ Option 1. Using pip:
 ```
 cd train
 pip install -r requirements.txt
-cd ..
-pip freeze > pip_requirements.txt
-pip install -r pip_requirements.txt 
 ```
 Note: this will take a while (> 1 hour for me)
 
