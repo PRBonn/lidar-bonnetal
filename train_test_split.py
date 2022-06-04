@@ -6,9 +6,16 @@ from sklearn.model_selection import train_test_split
 import shutil
 import re
 
-cloud_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/pennovation_dataset/converted_scans/"
-label_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/pennovation_dataset/converted_labels/"
-save_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/pennovation_dataset/"
+for_jackle = True
+if for_jackle:
+    dataset_name = "pennovation_dataset_jackle"
+    label_prefix = "label_sweep"
+else:
+    dataset_name = "pennovation_dataset"
+    label_prefix = "label"
+cloud_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/"+dataset_name+"/converted_scans/"
+label_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/"+dataset_name+"/converted_labels/"
+save_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/"+dataset_name+"/"
 clouds = glob.glob(cloud_dir + 'point_cloud_*.pcd')
 test_portion = 0.1
 print("percentage of data splited as test set: ", test_portion)
@@ -31,14 +38,14 @@ for file in train:
     print("loading lables for file: ", file)
     shutil.copy(file, save_dir + "sequences/00/point_clouds/")
     number = re.findall(r'[0-9]+', file)[0]
-    label = label_dir + "label_" + number + ".npy"
+    label = label_dir + label_prefix + "_" + number + ".npy"
     shutil.copy(label, save_dir + "sequences/00/labels/")
     print("successfully loaded lables for training file: ", file)
 for file in test:
     print("loading lables for file: ", file)
     shutil.copy(file, save_dir + "sequences/01/point_clouds/")
     number = re.findall(r'[0-9]+', file)[0]
-    label = label_dir + "label_" + number + ".npy"
+    label = label_dir + label_prefix + "_" + number + ".npy"
     shutil.copy(label, save_dir + "sequences/01/labels/")
     print("successfully loaded lables for validation file: ", file)
 for file in test:

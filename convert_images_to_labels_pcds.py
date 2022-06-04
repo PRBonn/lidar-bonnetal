@@ -11,8 +11,16 @@ from pypcd import pypcd
 from termcolor import colored
 import traceback
 
-data_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/pennovation_dataset/"
-fnames = glob.glob(data_dir + "labels/1*.png") # start with 1 to avoid including the viz_ stuff
+for_jackle = True
+if for_jackle:
+    data_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/pennovation_dataset_jackle/"
+else:
+    data_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/pennovation_dataset/"
+
+if for_jackle:
+    fnames = glob.glob(data_dir + "labels/sweep*.png")  # start with sweep to avoid including the viz_ stuff
+else:
+    fnames = glob.glob(data_dir + "labels/1*.png") # start with 1 to avoid including the viz_ stuff
 
 save_dir_point_cloud = data_dir + "converted_scans/"
 save_dir_label = data_dir + "converted_labels/"
@@ -130,6 +138,8 @@ for fname in fnames:
     xyz[:,0] = x
     xyz[:,1] = y
     xyz[:,2] = z
+    mean = np.mean(xyz, axis=0)
+    print(mean)
     intensity = scan[:,:,3].flatten()
     pcd.points = o3d.utility.Vector3dVector(xyz)
 

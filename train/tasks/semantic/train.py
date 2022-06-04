@@ -40,8 +40,7 @@ if __name__ == '__main__':
   parser.add_argument(
       '--log', '-l',
       type=str,
-      default='../../../logs/'  +
-      datetime.datetime.now().strftime("%Y-%-m-%d-%H:%M") + '/',
+      default='../../../logs/',
       help='Directory to put the log data. Default: ~/logs/date+time'
   )
   parser.add_argument(
@@ -52,7 +51,7 @@ if __name__ == '__main__':
       help='Directory to get the pretrained model. If not passed, do from scratch!'
   )
   FLAGS, unparsed = parser.parse_known_args()
-
+  FLAGS.log = FLAGS.log + datetime.datetime.now().strftime("%Y-%-m-%d-%H:%M") + '/'
   # print summary of what we will do
   print("----------")
   print("INTERFACE:")
