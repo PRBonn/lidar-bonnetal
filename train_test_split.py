@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 import shutil
 import re
 
-for_jackle = True
+for_jackle = False
 if for_jackle:
     dataset_name = "pennovation_dataset_jackle"
     label_prefix = "label_sweep"
@@ -36,23 +36,21 @@ os.makedirs(output_sequence_dir + "02/point_clouds/")
 
 for file in train:
     print("loading lables for file: ", file)
-    shutil.copy(file, save_dir + "sequences/00/point_clouds/")
     number = re.findall(r'[0-9]+', file)[0]
+    shutil.copy(file, save_dir + "sequences/00/point_clouds/point_cloud_" + number + ".pcd")
     label = label_dir + label_prefix + "_" + number + ".npy"
-    shutil.copy(label, save_dir + "sequences/00/labels/")
+    shutil.copy(label, save_dir + "sequences/00/labels/label_" +number+".npy")
     print("successfully loaded lables for training file: ", file)
 for file in test:
     print("loading lables for file: ", file)
-    shutil.copy(file, save_dir + "sequences/01/point_clouds/")
     number = re.findall(r'[0-9]+', file)[0]
+    shutil.copy(file, save_dir + "sequences/01/point_clouds/point_cloud_" + number + ".pcd")
     label = label_dir + label_prefix + "_" + number + ".npy"
-    shutil.copy(label, save_dir + "sequences/01/labels/")
+    shutil.copy(label, save_dir + "sequences/01/labels/label_" +number+".npy")
     print("successfully loaded lables for validation file: ", file)
 for file in test:
     # TODO: test data should probably be created separately from validation set
     print("loading lables for file: ", file)
-    shutil.copy(file, save_dir + "sequences/02/point_clouds/")
-    # number = re.findall(r'[0-9]+', file)[0]
-    # label = label_dir + "label_" + number + ".npy"
-    # shutil.copy(label, save_dir + "sequences/02/labels/")
+    number = re.findall(r'[0-9]+', file)[0]
+    shutil.copy(file, save_dir + "sequences/02/point_clouds/point_cloud_" + number + ".pcd")
     print("successfully loaded lables for test file: ", file)

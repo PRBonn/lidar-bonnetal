@@ -1,5 +1,5 @@
 # This file is covered by the LICENSE file in the root of this project.
-name: "pennovation"
+name: "pennovation-jackle"
 
 # Ian's label tool convention:
 # rgb / 255
@@ -40,18 +40,19 @@ color_map: # bgr
 
 content: # as a ratio with the total number of points
   # raw stats from the data loader:
-  #  [ 0.17279082 0.44709127 0.07368158 0.21926294 0.03276026 0.04045004
-  #    0.00290192 0.00465596 0.00489525 0.00150997 ]
-  0: 0.17279082 #  0 : "unlabelled"
-  1: 0.44709127 #  1 : "road"
-  2: 0.07368158 #  2: "vegetation"
-  3: 0.21926294 #  3: "building"
-  4: 0.03276026  #  4: "grass-sidewalk
-  5: 0.04045004  #  5: "vehicle"
-  6: 0.00290192  #  6: "human"
-  7: 0.00465596  #  7: "gravel"
-  8: 0.00489525  #  8: "tree_trunk"
-  9: 0.00150997  #  9: "light_pole"
+  #mean values of number points for each class / total points are:
+  #[0.1851279  0.44469167 0.07906675 0.20659639 0.04173904 0.03609916
+  # 0.00286886 0.00381022 0.         0.        ]
+  0: 0.1851279 #  0 : "unlabelled"
+  1: 0.44469167 #  1 : "road"
+  2: 0.07906675 #  2: "vegetation"
+  3: 0.20659639 #  3: "building"
+  4: 0.04173904  #  4: "grass-sidewalk
+  5: 0.03609916  #  5: "vehicle"
+  6: 0.00286886  #  6: "human"
+  7: 0.00381022  #  7: "gravel"
+  8: 0.0  #  8: "tree_trunk"
+  9: 0.0  #  9: "light_pole"
 
 # classes that are indistinguishable from single scan or inconsistent in
 # ground truth are mapped to their closest equivalent
@@ -98,5 +99,4 @@ split: # sequence numbers
   valid:
     - 1
   test:
-    - 1
     - 2

@@ -11,7 +11,7 @@ from pypcd import pypcd
 from termcolor import colored
 import traceback
 
-for_jackle = True
+for_jackle = False
 if for_jackle:
     data_dir = "/home/sam/semantic-segmentation/lidar-bonnetal/pennovation_dataset_jackle/"
 else:
