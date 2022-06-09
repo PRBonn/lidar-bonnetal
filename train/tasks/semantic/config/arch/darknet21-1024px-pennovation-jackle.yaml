@@ -34,7 +34,7 @@ backbone:
   OS: 32 # output stride (only horizontally)
   train: True # train backbone?
   extra:
-    layers: 53
+    layers: 21
 
 ################################################################################
 # decoder parameters
@@ -75,14 +75,14 @@ post:
 ################################################################################
 # dataset (to find parser)
 dataset:
-  labels: "pennovation"
-  scans: "pennovation"
+  labels: "pennovation-jackle"
+  scans: "pennovation-jackle"
   max_points: 150000 # max of any scan in dataset
   sensor:
     name: "HDL64"
     type: "spherical" # projective
-    fov_up: 22.5
-    fov_down: -22.5
+    fov_up: 16.6
+    fov_down: -16.6 #22.5
     img_prop:
       width: 1024
       height: 64

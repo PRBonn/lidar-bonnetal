@@ -34,7 +34,7 @@ backbone:
   OS: 32 # output stride (only horizontally)
   train: True # train backbone?
   extra:
-    layers: 53
+    layers: 21
 
 ################################################################################
 # decoder parameters

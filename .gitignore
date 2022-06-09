@@ -19,4 +19,6 @@ pre_trained_models/
 range_images/
 pip_requirements.
 trained_models/
-to-visualize/
+to-visualize/*
+*.pcd
+*.npy

@@ -33,7 +33,7 @@ if __name__ == '__main__':
       '--model', '-m',
       type=str,
       required=False,
-      default="../../../pennovation-darknet53",
+      default="../../../pennovation-darknet21",
       help='Directory to get the trained model.'
   )
   FLAGS, unparsed = parser.parse_known_args()
