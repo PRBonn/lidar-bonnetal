@@ -156,7 +156,8 @@ class Backbone(nn.Module):
 
   def forward(self, x):
     # filter input
-    #x = x[:, self.input_idxs]
+    # comment this out and modify parser.py accordingly to ignore intensity (used for segmentation) and point xyz (used for KNN)
+    x = x[:, self.input_idxs]
 
     # run cnn
     # store for skip connections
