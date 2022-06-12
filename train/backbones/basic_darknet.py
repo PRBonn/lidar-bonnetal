@@ -37,6 +37,7 @@ class BasicBlock(nn.Module):
 
 # number of layers per model
 model_blocks = {
+    1: [1, 1, 2, 2, 1],
     21: [1, 1, 2, 2, 1],
     53: [1, 2, 8, 8, 4],
 }
@@ -115,16 +116,16 @@ class Backbone(nn.Module):
                                      stride=self.strides[1], bn_d=self.bn_d)
     self.enc3 = self._make_enc_layer(BasicBlock, [128, 256], self.blocks[2],
                                      stride=self.strides[2], bn_d=self.bn_d)
-    self.enc4 = self._make_enc_layer(BasicBlock, [256, 512], self.blocks[3],
-                                     stride=self.strides[3], bn_d=self.bn_d)
-    self.enc5 = self._make_enc_layer(BasicBlock, [512, 1024], self.blocks[4],
-                                     stride=self.strides[4], bn_d=self.bn_d)
+    # self.enc4 = self._make_enc_layer(BasicBlock, [256, 512], self.blocks[3],
+    #                                  stride=self.strides[3], bn_d=self.bn_d)
+    # self.enc5 = self._make_enc_layer(BasicBlock, [512, 1024], self.blocks[4],
+    #                                  stride=self.strides[4], bn_d=self.bn_d)
 
     # for a bit of fun
     self.dropout = nn.Dropout2d(self.drop_prob)
 
     # last channels
-    self.last_channels = 1024
+    self.last_channels = 256
 
   # make layer useful function
   def _make_enc_layer(self, block, planes, blocks, stride, bn_d=0.1):
@@ -175,10 +176,10 @@ class Backbone(nn.Module):
     x, skips, os = self.run_layer(x, self.dropout, skips, os)
     x, skips, os = self.run_layer(x, self.enc3, skips, os)
     x, skips, os = self.run_layer(x, self.dropout, skips, os)
-    x, skips, os = self.run_layer(x, self.enc4, skips, os)
-    x, skips, os = self.run_layer(x, self.dropout, skips, os)
-    x, skips, os = self.run_layer(x, self.enc5, skips, os)
-    x, skips, os = self.run_layer(x, self.dropout, skips, os)
+    # x, skips, os = self.run_layer(x, self.enc4, skips, os)
+    # x, skips, os = self.run_layer(x, self.dropout, skips, os)
+    # x, skips, os = self.run_layer(x, self.enc5, skips, os)
+    # x, skips, os = self.run_layer(x, self.dropout, skips, os)
 
     return x, skips
 

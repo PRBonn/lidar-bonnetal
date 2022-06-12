@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from common.laserscan import LaserScan, SemLaserScan
+import pdb
 
 EXTENSIONS_SCAN = ['.pcd']
 EXTENSIONS_LABEL = ['.pcd']
@@ -165,9 +166,11 @@ class SemanticKitti(Dataset):
     proj_x[:unproj_n_points] = torch.from_numpy(scan.proj_x)
     proj_y = torch.full([self.max_points], -1, dtype=torch.long)
     proj_y[:unproj_n_points] = torch.from_numpy(scan.proj_y)
-    proj = torch.cat([proj_range.unsqueeze(0).clone(),
-                      proj_xyz.clone().permute(2, 0, 1),
-                      proj_remission.unsqueeze(0).clone()])
+
+    proj = proj_range.unsqueeze(0).clone()
+    # proj = torch.cat([proj_range.unsqueeze(0).clone(),
+    #                   proj_xyz.clone().permute(2, 0, 1),
+    #                   proj_remission.unsqueeze(0).clone()])
     proj = (proj - self.sensor_img_means[:, None, None]
             ) / self.sensor_img_stds[:, None, None]
     proj = proj * proj_mask.float()
