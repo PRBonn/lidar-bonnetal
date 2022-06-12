@@ -117,13 +117,13 @@ class SemanticKitti(Dataset):
     # open a semantic laserscan
     if self.gt:
       scan = SemLaserScan(self.color_map,
-                          project=True,
+                          project=False,
                           H=self.sensor_img_H,
                           W=self.sensor_img_W,
                           fov_up=self.sensor_fov_up,
                           fov_down=self.sensor_fov_down)
     else:
-      scan = LaserScan(project=True,
+      scan = LaserScan(project=False,
                        H=self.sensor_img_H,
                        W=self.sensor_img_W,
                        fov_up=self.sensor_fov_up,
@@ -151,7 +151,9 @@ class SemanticKitti(Dataset):
     else:
       unproj_labels = []
 
+
     # get points and labels
+    # TODO: add destagger here
     proj_range = torch.from_numpy(scan.proj_range).clone()
     proj_xyz = torch.from_numpy(scan.proj_xyz).clone()
     proj_remission = torch.from_numpy(scan.proj_remission).clone()
