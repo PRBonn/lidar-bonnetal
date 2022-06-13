@@ -2,12 +2,16 @@ import os
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-from common.laserscan import LaserScan, SemLaserScan
+# from common.laserscan import LaserScan, SemLaserScan
 
 EXTENSIONS_SCAN = ['.pcd']
 EXTENSIONS_LABEL = ['.pcd']
-import time
+# import time
 
+import open3d as o3d
+# from torch import clamp
+from pypcd import pypcd
+import re
 
 def is_scan(filename):
   return any(filename.endswith(ext) for ext in EXTENSIONS_SCAN)
@@ -114,59 +118,171 @@ class SemanticKitti(Dataset):
     if self.gt:
       label_file = self.label_files[index]
 
-    # open a semantic laserscan
-    if self.gt:
-      scan = SemLaserScan(self.color_map,
-                          project=False,
-                          H=self.sensor_img_H,
-                          W=self.sensor_img_W,
-                          fov_up=self.sensor_fov_up,
-                          fov_down=self.sensor_fov_down)
-    else:
-      scan = LaserScan(project=False,
-                       H=self.sensor_img_H,
-                       W=self.sensor_img_W,
-                       fov_up=self.sensor_fov_up,
-                       fov_down=self.sensor_fov_down)
+    ####################### open and obtain scan #######################
+    # check filename is string
+    if not isinstance(scan_file, str):
+      raise TypeError("Filename should be string type, "
+                      "but was {type}".format(type=str(type(scan_file))))
 
-    # open and obtain scan
-    scan.open_scan(scan_file)
+    # check extension is a laserscan
+    if not any(scan_file.endswith(ext) for ext in EXTENSIONS_SCAN):
+      raise RuntimeError("Filename extension is not valid scan file.")
+
+    # if all goes well, open pointcloud
+    pcd = o3d.io.read_point_cloud(scan_file)
+    scan_points = (np.asarray(pcd.points))
+    pc = pypcd.PointCloud.from_path(scan_file)
+    scan_remissions = pc.pc_data['intensity']
+    
+    # check scan makes sense
+    if not isinstance(scan_points, np.ndarray):
+      raise TypeError("Scan should be numpy array")
+    # check remission makes sense
+    if scan_remissions is not None and not isinstance(scan_remissions, np.ndarray):
+      raise TypeError("Remissions should be numpy array")
+    #####################################################################
+
+
+
+    ##################laserscan projection stuff###########################
+    # laser parameters
+    fov_up = self.sensor_fov_up / 180.0 * np.pi      # field of view up in rad
+    fov_down = self.sensor_fov_down / 180.0 * np.pi  # field of view down in rad
+    fov = abs(fov_down) + abs(fov_up)  # get field of view total in rad
+
+    # get depth of all points
+    depth = np.linalg.norm(scan_points, 2, axis=1)
+    depth[depth == 0] = 0.0000001 #Stop divide by 0
+
+    ### thresholding by range (distance), ignore points that are far away, only consider points within the given range
+    threshold_by_range = False # keep this as an option for future use
+    if threshold_by_range:
+      scan_mask = depth > 30.0
+      # get scan components
+      scan_x = scan_points[:, 0]
+      scan_y = scan_points[:, 1]
+      scan_z = scan_points[:, 2]
+      depth[scan_mask] = 0.00000001
+      scan_x[scan_mask] = 0
+      scan_y[scan_mask] = 0
+      scan_z[scan_mask] = 0
+      scan_remissions[scan_mask] = 0
+    else:
+      # get scan components
+      scan_x = scan_points[:, 0]
+      scan_y = scan_points[:, 1]
+      scan_z = scan_points[:, 2]
+
+    yaw = -np.arctan2(scan_y, scan_x)
+    pitch = np.arcsin(scan_z / depth)
+
+    # get projections in image coords
+    scan_proj_x = 0.5 * (yaw / np.pi + 1.0)          # in [0.0, 1.0]
+    scan_proj_y = 1.0 - (pitch + abs(fov_down)) / fov        # in [0.0, 1.0]
+
+    # scale to image size using angular resolution
+    scan_proj_x *= self.sensor_img_W                              # in [0.0, W]
+    scan_proj_y *= self.sensor_img_H                              # in [0.0, H]
+
+    # round and clamp for use as index
+    scan_proj_x = np.floor(scan_proj_x)
+    scan_proj_x = np.minimum(self.sensor_img_W - 1, scan_proj_x)
+    scan_proj_x[scan_proj_x < 0] = 0
+    scan_proj_x = np.maximum(0, scan_proj_x).astype(np.int32)   # in [0,W-1]
+
+    scan_proj_y = np.floor(scan_proj_y)
+    scan_proj_y = np.minimum(self.sensor_img_H - 1, scan_proj_y)
+    scan_proj_y[scan_proj_y < 0] = 0
+    scan_proj_y = np.maximum(0, scan_proj_y).astype(np.int32)   # in [0,H-1]
+
+    # order in decreasing depth -- removed
+    indices = np.arange(depth.shape[0])
+
+    # assing to images
+    # projected range image - [H,W] range (-1 is no data)
+    scan_proj_range = np.full((self.sensor_img_H, self.sensor_img_W), -1, dtype=np.float32)
+    scan_proj_range[scan_proj_y, scan_proj_x] = depth
+    # projected point cloud xyz - [H,W,3] xyz coord (-1 is no data)
+    scan_proj_xyz = np.full((self.sensor_img_H, self.sensor_img_W, 3), -1,dtype=np.float32)
+    scan_proj_xyz[scan_proj_y, scan_proj_x] = scan_points
+    # projected remission - [H,W] intensity (-1 is no data)
+    scan_proj_remission = np.full((self.sensor_img_H, self.sensor_img_W), -1,dtype=np.float32)
+    scan_proj_remission[scan_proj_y, scan_proj_x] = scan_remissions
+    # projected index (for each pixel, what I am in the pointcloud), [H,W] index (-1 is no data)
+    scan_proj_idx = np.full((self.sensor_img_H, self.sensor_img_W), -1,dtype=np.int32) 
+    scan_proj_idx[scan_proj_y, scan_proj_x] = indices
+    scan_proj_mask = (scan_proj_idx > 0).astype(np.int32)
+    #####################################################################
+
+
     if self.gt:
-      scan.open_label(label_file)
-      # map unused classes to used classes (also for projection)
-      scan.sem_label = self.map(scan.sem_label, self.learning_map)
-      scan.proj_sem_label = self.map(scan.proj_sem_label, self.learning_map)
+      ####################### open label #######################
+      key = os.path.split(label_file)[-1][:-4]
+      original_filename = label_file
+      number = re.findall(r'[0-9]+', key)[0]
+      label_file = os.path.join(os.path.sep.join(original_filename.split(os.sep)[:-2]), "labels",
+                              "label_" + number + ".npy")
+      if os.path.isfile(label_file):
+        label = np.load(label_file)
+      else:
+        label_file = os.path.join(os.path.sep.join(original_filename.split(os.sep)[:-2]), "predictions",
+                                key + ".npy")
+        print(label_file)
+        label = np.load(label_file)
+      
+      # set labels
+      # check label makes sense
+      if not isinstance(label, np.ndarray):
+        raise TypeError("Label should be numpy array")
+      # only fill in attribute if the right size
+      if label.shape[0] == scan_points.shape[0]:
+        sem_label = label.astype(int)  # semantic label in lower half
+        # only map colors to labels that exist (proj_idx -1 is no data)
+        mask = (scan_proj_idx >= 0)
+        # projection color with semantic labels
+        proj_sem_label = np.zeros((self.sensor_img_H, self.sensor_img_W), dtype=np.int32)
+        proj_sem_label[mask] = sem_label[scan_proj_idx[mask]]
+      else:
+        raise ValueError("Scan and Label don't contain same number of points")
+      
+
+      # map unused classes to used classes
+      sem_label = self.map(sem_label, self.learning_map)
+      proj_sem_label = self.map(proj_sem_label, self.learning_map)
+      #####################################################################
+
+
+
+
 
     # make a tensor of the uncompressed data (with the max num points)
-    unproj_n_points = scan.points.shape[0]
+    unproj_n_points = scan_points.shape[0]
     unproj_xyz = torch.full((self.max_points, 3), -1.0, dtype=torch.float)
-    unproj_xyz[:unproj_n_points] = torch.from_numpy(scan.points)
+    unproj_xyz[:unproj_n_points] = torch.from_numpy(scan_points)
     unproj_range = torch.full([self.max_points], -1.0, dtype=torch.float)
-    unproj_range[:unproj_n_points] = torch.from_numpy(scan.unproj_range)
+    unproj_range[:unproj_n_points] = torch.from_numpy(depth)
     unproj_remissions = torch.full([self.max_points], -1.0, dtype=torch.float)
-    unproj_remissions[:unproj_n_points] = torch.from_numpy(scan.remissions)
+    unproj_remissions[:unproj_n_points] = torch.from_numpy(scan_remissions)
     if self.gt:
       unproj_labels = torch.full([self.max_points], -1.0, dtype=torch.int32)
-      unproj_labels[:unproj_n_points] = torch.from_numpy(scan.sem_label)
+      unproj_labels[:unproj_n_points] = torch.from_numpy(sem_label)
     else:
       unproj_labels = []
 
-
     # get points and labels
-    # TODO: add destagger here
-    proj_range = torch.from_numpy(scan.proj_range).clone()
-    proj_xyz = torch.from_numpy(scan.proj_xyz).clone()
-    proj_remission = torch.from_numpy(scan.proj_remission).clone()
-    proj_mask = torch.from_numpy(scan.proj_mask)
+    proj_range = torch.from_numpy(scan_proj_range).clone()
+    proj_xyz = torch.from_numpy(scan_proj_xyz).clone()
+    proj_remission = torch.from_numpy(scan_proj_remission).clone()
+    proj_mask = torch.from_numpy(scan_proj_mask)
     if self.gt:
-      proj_labels = torch.from_numpy(scan.proj_sem_label).clone()
+      proj_labels = torch.from_numpy(proj_sem_label).clone()
       proj_labels = proj_labels * proj_mask
     else:
       proj_labels = []
     proj_x = torch.full([self.max_points], -1, dtype=torch.long)
-    proj_x[:unproj_n_points] = torch.from_numpy(scan.proj_x)
+    proj_x[:unproj_n_points] = torch.from_numpy(scan_proj_x)
     proj_y = torch.full([self.max_points], -1, dtype=torch.long)
-    proj_y[:unproj_n_points] = torch.from_numpy(scan.proj_y)
+    proj_y[:unproj_n_points] = torch.from_numpy(scan_proj_y)
     proj = torch.cat([proj_range.unsqueeze(0).clone(),
                       proj_xyz.clone().permute(2, 0, 1),
                       proj_remission.unsqueeze(0).clone()])

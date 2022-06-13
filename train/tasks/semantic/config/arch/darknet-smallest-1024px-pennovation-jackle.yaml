@@ -4,16 +4,16 @@
 train:
   loss: "xentropy"       # must be either xentropy or iou
   max_epochs: 150
-  lr: 0.01              # sgd learning rate
+  lr: 0.005              # sgd learning rate
   wup_epochs: 1          # warmup during first XX epochs (can be float)
   momentum: 0.9          # sgd momentum
-  lr_decay: 0.995         # learning rate decay per epoch after initial cycle (from min lr)
+  lr_decay: 0.99         # learning rate decay per epoch after initial cycle (from min lr)
   w_decay: 0.0001        # weight decay
   batch_size: 1          # batch size
   report_batch: 1        # every x batches, report loss
   report_epoch: 1        # every x epochs, report validation set
   epsilon_w: 0.001       # class weight w = 1 / (content + epsilon_w)
-  save_summary: False    # Summary of weight histograms for tensorboard
+  save_summary: True    # Summary of weight histograms for tensorboard
   save_scans: True       # False doesn't save anything, True saves some
                          # sample images (one per batch of the last calculated batch)
                          # in log folder
