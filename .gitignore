@@ -8,6 +8,7 @@
 .catkin_tools/
 devel/
 logs/
+logs*/
 external.hpp
 venv
 log/
@@ -22,3 +23,5 @@ trained_models/
 to-visualize/*
 *.pcd
 *.npy
+*pennovation_dataset*
+*pennovation-darknet*
