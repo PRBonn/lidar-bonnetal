@@ -1,3 +1,9 @@
+> [!IMPORTANT]
+> **Repository Archived**  
+> This repository has been archived and is no longer actively maintained. You are welcome to explore the code, but please note that no further updates, issues, or pull requests will be accepted.
+>
+> Thank you for your interest and contributions.
+
 # LiDAR-Bonnetal
 
 Semantic Segmentation of point clouds using range images.
